@@ -6,11 +6,11 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 
 | Beads Issue ID | Judul | Prioritas | Status | Dependency |
 |----------------|-------|-----------|--------|------------|
-| [`pos-app-fe-ie5`](#pos-app-fe-ie5) | Setup project foundation & tooling | P1 | Ready / Open | Blocks: `pos-app-fe-xz2` |
-| [`pos-app-fe-xz2`](#pos-app-fe-xz2) | Implementasi Auth Shell (login, logout, session, CSRF) | P1 | Blocked | Depends on: `pos-app-fe-ie5`<br>Blocks: `pos-app-fe-aep` |
-| [`pos-app-fe-aep`](#pos-app-fe-aep) | Implementasi App Shell (header, unit switcher, navigasi permission-aware) | P1 | Blocked | Depends on: `pos-app-fe-xz2`<br>Blocks: `pos-app-fe-0x9`, `pos-app-fe-0rg` |
-| [`pos-app-fe-0x9`](#pos-app-fe-0x9) | Implementasi fitur Users | P2 | Blocked | Depends on: `pos-app-fe-aep` |
-| [`pos-app-fe-0rg`](#pos-app-fe-0rg) | Implementasi fitur Roles | P2 | Blocked | Depends on: `pos-app-fe-aep` |
+| [`pos-app-fe-ie5`](#pos-app-fe-ie5) | Setup project foundation & tooling | P1 | Closed | Blocks: `pos-app-fe-xz2` |
+| [`pos-app-fe-xz2`](#pos-app-fe-xz2) | Implementasi Auth Shell (login, logout, session, CSRF) | P1 | Closed | Depends on: `pos-app-fe-ie5`<br>Blocks: `pos-app-fe-aep` |
+| [`pos-app-fe-aep`](#pos-app-fe-aep) | Implementasi App Shell (header, unit switcher, navigasi permission-aware) | P1 | Closed | Depends on: `pos-app-fe-xz2`<br>Blocks: `pos-app-fe-0x9`, `pos-app-fe-0rg` |
+| [`pos-app-fe-0x9`](#pos-app-fe-0x9) | Implementasi fitur Users | P2 | Closed | Depends on: `pos-app-fe-aep` |
+| [`pos-app-fe-0rg`](#pos-app-fe-0rg) | Implementasi fitur Roles | P2 | Closed | Depends on: `pos-app-fe-aep` |
 
 ---
 
@@ -18,75 +18,75 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 
 ### <a id="pos-app-fe-ie5"></a>1. pos-app-fe-ie5: Setup project foundation & tooling
 - **Prioritas:** P1
-- **Status:** Ready / Open
+- **Status:** Closed
 - **Dependency:** Blocks `pos-app-fe-xz2`
 - **Subtasks:**
-  - [ ] Inisialisasi Vite + React + TypeScript strict
-  - [ ] Konfigurasi Tailwind v4 (`@theme`)
-  - [ ] Setup linter & formatter (Biome)
-  - [ ] Setup Lefthook pre-commit hooks
-  - [ ] Integrasi TanStack Query
-  - [ ] Setup React Router v6
-  - [ ] Konfigurasi shadcn/ui + Base UI engine
-  - [ ] Install & setup Sonner (toast notifications)
-  - [ ] Install & setup date-fns
-  - [ ] Pembuatan HTTP client + CSRF helper
+  - [x] Inisialisasi Vite + React + TypeScript strict
+  - [x] Konfigurasi Tailwind v4 (`@theme`)
+  - [x] Setup linter & formatter (Biome)
+  - [x] Setup Lefthook pre-commit hooks
+  - [x] Integrasi TanStack Query
+  - [x] Setup React Router v6
+  - [x] Konfigurasi shadcn/ui + Base UI engine
+  - [x] Install & setup Sonner (toast notifications)
+  - [x] Install & setup date-fns
+  - [x] Pembuatan HTTP client + CSRF helper
 
 ---
 
 ### <a id="pos-app-fe-xz2"></a>2. pos-app-fe-xz2: Implementasi Auth Shell (login, logout, session, CSRF)
 - **Prioritas:** P1
-- **Status:** Blocked (Depends on `pos-app-fe-ie5`)
+- **Status:** Closed
 - **Dependency:** Depends on `pos-app-fe-ie5`, Blocks `pos-app-fe-aep`
 - **Subtasks:**
-  - [ ] Implementasi Login form (React Hook Form + Zod)
-  - [ ] Implementasi auto-injection CSRF token header pada HTTP client
-  - [ ] Implementasi pengecekan sesi `GET /auth/me`
-  - [ ] Implementasi Logout handler
-  - [ ] Implementasi 401 redirect / 403 alert interceptor
-  - [ ] Konfigurasi Route guards
-  - [ ] Implementasi hard redirect ke `/change-password` jika `must_change_password` aktif
+  - [x] Implementasi Login form (React Hook Form + Zod)
+  - [x] Implementasi auto-injection CSRF token header pada HTTP client
+  - [x] Implementasi pengecekan sesi `GET /auth/me`
+  - [x] Implementasi Logout handler
+  - [x] Implementasi 401 redirect / 403 alert interceptor
+  - [x] Konfigurasi Route guards
+  - [x] Implementasi hard redirect ke `/change-password` jika `must_change_password` aktif
 
 ---
 
 ### <a id="pos-app-fe-aep"></a>3. pos-app-fe-aep: Implementasi App Shell (header, unit switcher, navigasi permission-aware)
 - **Prioritas:** P1
-- **Status:** Blocked (Depends on `pos-app-fe-xz2`)
+- **Status:** Closed
 - **Dependency:** Depends on `pos-app-fe-xz2`, Blocks `pos-app-fe-0x9`, `pos-app-fe-0rg`
 - **Subtasks:**
-  - [ ] Implementasi Layout shell (header, sidebar, content area)
-  - [ ] Implementasi Unit switcher di header (localStorage + React Context)
-  - [ ] Implementasi Eager permission loading (`GET /api/v1/users/{id}/roles` ke AuthContext)
-  - [ ] Implementasi permission-aware menu visibility
-  - [ ] Implementasi recompute permission saat unit diganti
+  - [x] Implementasi Layout shell (header, sidebar, content area)
+  - [x] Implementasi Unit switcher di header (localStorage + React Context)
+  - [x] Implementasi Eager permission loading (`GET /api/v1/users/{id}/roles` ke AuthContext)
+  - [x] Implementasi permission-aware menu visibility
+  - [x] Implementasi recompute permission saat unit diganti
 
 ---
 
 ### <a id="pos-app-fe-0x9"></a>4. pos-app-fe-0x9: Implementasi fitur Users
 - **Prioritas:** P2
-- **Status:** Blocked (Depends on `pos-app-fe-aep`)
+- **Status:** Closed
 - **Dependency:** Depends on `pos-app-fe-aep`
 - **Subtasks:**
-  - [ ] Implementasi User list (TanStack Table dengan server-side pagination, sort, & filter)
-  - [ ] Pembuatan halaman Detail user
-  - [ ] Implementasi Create user form (dedicated page RHF + Zod)
-  - [ ] Implementasi Non-dismissible temporary password modal
-  - [ ] Implementasi Edit user form
-  - [ ] Implementasi Status update modal (ACTIVE / SUSPENDED / DEACTIVATED)
-  - [ ] Implementasi manajemen Role assignment
+  - [x] Implementasi User list (TanStack Table dengan server-side pagination, sort, & filter)
+  - [x] Pembuatan halaman Detail user
+  - [x] Implementasi Create user form (dedicated page RHF + Zod)
+  - [x] Implementasi Non-dismissible temporary password modal
+  - [x] Implementasi Edit user form
+  - [x] Implementasi Status update modal (ACTIVE / SUSPENDED / DEACTIVATED)
+  - [x] Implementasi manajemen Role assignment
 
 ---
 
 ### <a id="pos-app-fe-0rg"></a>5. pos-app-fe-0rg: Implementasi fitur Roles
 - **Prioritas:** P2
-- **Status:** Blocked (Depends on `pos-app-fe-aep`)
+- **Status:** Closed
 - **Dependency:** Depends on `pos-app-fe-aep`
 - **Subtasks:**
-  - [ ] Implementasi Role list (TanStack Table dengan `is_system` badge)
-  - [ ] Pembuatan halaman Detail role
-  - [ ] Implementasi Create/edit role form (dedicated page) dengan permission editor 16 permissions yang dikelompokkan
-  - [ ] Implementasi perlindungan immutable system roles
-  - [ ] Implementasi Delete role modal (hanya aktif jika tidak ada active assignments)
+  - [x] Implementasi Role list (TanStack Table dengan `is_system` badge)
+  - [x] Pembuatan halaman Detail role
+  - [x] Implementasi Create/edit role form (dedicated page) dengan permission editor 16 permissions yang dikelompokkan
+  - [x] Implementasi perlindungan immutable system roles
+  - [x] Implementasi Delete role modal (hanya aktif jika tidak ada active assignments)
 
 ---
 

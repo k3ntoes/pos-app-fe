@@ -41,8 +41,24 @@ Setiap endpoint list/koleksi wajib mengembalikan metadata paginasi dengan strukt
 - `total_pages`: Total keseluruhan halaman.
 
 ### 1.4 Autentikasi CSRF & Session Cookie (SSOT)
-- Sesi web menggunakan HttpOnly Secure Cookie untuk otentikasi.
-- Mutasi state (`POST`, `PUT`, `PATCH`, `DELETE`) **wajib** menyertakan header **`X-CSRF-Token`** yang dibaca dari cookie CSRF/set token yang di-set oleh backend saat login/inisialisasi session.
+- Sesi web menggunakan HttpOnly Secure Cookie untuk otentikasi session.
+- Proteksi CSRF menggunakan cookie spesifik bernama **`pos_csrf`** dengan atribut:
+  - `httponly=False` (agar dapat dibaca oleh JavaScript frontend jika diperlukan untuk inisialisasi state).
+  - `secure=True` (wajib HTTPS di environment produksi).
+  - `samesite=Lax`.
+- **Contoh Respon JSON Login (`POST /auth/login`)**:
+  ```json
+  {
+    "status": "success",
+    "csrf_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "must_change_password": false
+  }
+  ```
+- **Alur Pembacaan & Injeksi Token CSRF di Frontend (FE)**:
+  1. **Saat Login Berhasil**: FE dapat mengambil nilai token CSRF langsung dari payload response JSON (`csrf_token`) atau membacanya dari cookie `pos_csrf` untuk disimpan di memory state aplikasi.
+  2. **Saat Page Refresh / State Hilang**: Jika state aplikasi ter-reset akibat *page refresh*, FE dapat membaca kembali nilai token CSRF dari `document.cookie` (cookie `pos_csrf`).
+  3. **Injeksi Header**: Setiap request mutasi state (`POST`, `PUT`, `PATCH`, `DELETE`) **wajib** menyertakan header **`X-CSRF-Token`** yang diisi dengan token tersebut.
+
 
 ### 1.5 Terminologi Domain: `unit_id` (SSOT)
 - **`unit_id`**: Menyatakan ID unit spesifik yang terikat pada entitas data atau transaksi operasional tertentu (misalnya unit tempat transaksi dicatat atau resource dialokasikan).

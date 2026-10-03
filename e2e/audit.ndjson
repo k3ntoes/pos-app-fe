@@ -1,0 +1,8 @@
+{"test":"e2e/smoke.spec.ts - halaman utama redirect ke login jika belum auth","status":"pass","note":"Redirect berfungsi"}
+{"test":"e2e/smoke.spec.ts - halaman login bisa diakses","status":"pass","note":"Form login muncul, tapi input name='email' salah: seharusnya name='username'"}
+{"test":"e2e/login-protected.spec.ts - akses halaman terproteksi tanpa auth mengarah ke /login","status":"pass"}
+{"test":"e2e/login-protected.spec.ts - setelahlogin bisa akses halaman berproteksi","status":"pass","note":"Login pakai user 'admin' berhasil"}
+{"test":"e2e/roles.spec.ts - halaman roles bisa diakses setelah login","status":"pass"}
+{"test":"e2e/units.spec.ts - halaman units bisa diakses setelah login","status":"pass"}
+{"test":"e2e/users.spec.ts - halaman users bisa diakses setelah login","status":"pass"}
+{"test":"e2e/users.spec.ts - halaman create user bisa diakses setelah login","status":"pass"}

@@ -1,0 +1,91 @@
+import { rolesApi } from "@/api/roles";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { PermissionMatrix } from "./PermissionMatrix";
+
+export function RoleDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  const {
+    data: role,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["role", id],
+    queryFn: () => rolesApi.getRoleById(id as string),
+    enabled: Boolean(id),
+  });
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-gray-500">Memuat detail role...</div>;
+  }
+
+  if (error || !role) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <p className="text-red-600 font-semibold">Role tidak ditemukan atau gagal dimuat.</p>
+        <Button onClick={() => navigate("/roles")}>Kembali ke Daftar Roles</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">{role.name}</h1>
+            {role.is_system ? (
+              <Badge className="bg-purple-100 text-purple-800 border-purple-200">System Role</Badge>
+            ) : (
+              <Badge className="bg-blue-100 text-blue-800 border-blue-200">Custom Role</Badge>
+            )}
+          </div>
+          <p className="text-sm text-gray-500 mt-1">{role.description || "Tidak ada deskripsi."}</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" asChild>
+            <Link to="/roles">Kembali</Link>
+          </Button>
+          <Button asChild>
+            <Link to={`/roles/${role.id}/edit`}>Edit Role</Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Ringkasan Penugasan</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Jumlah User Assigned
+            </span>
+            <p className="text-2xl font-bold text-gray-900 mt-1">
+              {role?.assigned_users_count ?? 0} user
+            </p>
+          </div>
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Total Permissions Aktif
+            </span>
+            <p className="text-2xl font-bold text-indigo-600 mt-1">
+              {role.permissions?.length || 0} permissions
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Permission Matrix</h2>
+        <PermissionMatrix
+          selectedPermissions={role.permissions || []}
+          onChange={() => {}}
+          readOnly={true}
+        />
+      </div>
+    </div>
+  );
+}

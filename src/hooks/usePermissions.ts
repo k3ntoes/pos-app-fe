@@ -1,0 +1,57 @@
+import { useAuth } from "@/features/auth/AuthContext";
+import { useUnit } from "@/features/units/UnitContext";
+import type { PermissionType } from "@/types/permission";
+
+export function usePermissions() {
+  const { user } = useAuth();
+  const { activeUnit, userAssignments } = useUnit();
+
+  const isSuperAdmin = user?.status === "ACTIVE" && Boolean(user.is_super_admin);
+
+  const hasPermission = (permission: PermissionType): boolean => {
+    if (isSuperAdmin) return true;
+
+    const permissions = new Set<string>();
+
+    for (const assignment of userAssignments) {
+      if (assignment.unit_id === null || (activeUnit && assignment.unit_id === activeUnit.id)) {
+        if (assignment.role && Array.isArray(assignment.role.permissions)) {
+          for (const p of assignment.role.permissions) {
+            permissions.add(p);
+          }
+        }
+      }
+    }
+
+    if (user?.role && Array.isArray(user.role.permissions)) {
+      for (const p of user.role.permissions) {
+        permissions.add(p);
+      }
+    }
+
+    return permissions.has(permission);
+  };
+
+  const hasAnyPermission = (perms: PermissionType[]): boolean => {
+    return perms.some((p) => hasPermission(p));
+  };
+
+  const hasRole = (roleName: string): boolean => {
+    if (user?.role?.name === roleName) return true;
+    for (const assignment of userAssignments) {
+      if (
+        (assignment.unit_id === null || (activeUnit && assignment.unit_id === activeUnit.id)) &&
+        assignment.role?.name === roleName
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  return {
+    hasPermission,
+    hasAnyPermission,
+    hasRole,
+  };
+}

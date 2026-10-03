@@ -1,0 +1,17 @@
+export type PermissionType =
+  | "users:create"
+  | "users:read"
+  | "users:update"
+  | "users:delete"
+  | "roles:create"
+  | "roles:read"
+  | "roles:update"
+  | "roles:delete"
+  | "units:read"
+  | "units:update"
+  | "pos:cashier"
+  | "pos:orders"
+  | "pos:void"
+  | "audit:read"
+  | "reports:read"
+  | "settings:manage";
