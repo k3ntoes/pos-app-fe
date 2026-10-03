@@ -6,16 +6,18 @@ Backend sudah berjalan untuk beberapa konteks saja; frontend dikembangkan sebaga
 
 ## Cakupan awal
 Frontend pertama dibatasi hanya untuk **admin web**. Alasannya:
-- Backend saat ini sudah mendukung operasional di area Auth, Users/Roles, Units, dan Audit.
+- Backend saat ini sudah mendukung operasional di area Auth dan Users/Roles.
 - Domain bisnis seperti Sales / Cashier / Inventory / PO belum ada implementasi backend yang cukup.
 - Membangun UI untuk domain yang belum ada berisiko merusak karena kontrak API belum stabil.
 
 Cakupan v1 frontend yang masuk akal:
 - Shell aplikasi: layout, header, navigasi, unit switcher
 - Autentikasi web: login / logout, CSRF, sesi
-- Admin feature: Users, Roles, Units, Audit Log
+- Admin feature: Users, Roles
 
 Fitur yang ditunda:
+- Units (backend API belum tersedia)
+- Audit Log (backend API belum tersedia, domain model dan pipeline Redis ada tapi endpoint GET belum ada)
 - Sales / Cashier screens
 - Inventory screens
 - Purchase Order screens
@@ -24,9 +26,9 @@ Fitur yang ditunda:
 ## Client resmi backend
 Backend mendukung dua jenis klien:
 - **Web browser** → session cookie + CSRF
-- **Android** → Bearer JWT + refresh token + offline capability untuk PO creation
+- **Android** → Bearer JWT + refresh token (backend mobile auth sudah tersedia di `/auth/mobile/...`; FE Android client ditunda)
 
-Frontend pertama hanya menangani klien web. Alur Android ditunda. Jangan mencoba menyatukan keduanya dalam satu codebase responsif dengan asumsi identik; perbedaan koneksi, sesi, dan interaksi terlalu besar.
+Frontend pertama hanya menangani klien web. Backend sudah mengimplementasikan full mobile auth endpoints di `/auth/mobile/...`, namun FE Android client-nya yang ditunda — bukan sisi backend. Jangan mencoba menyatukan keduanya dalam satu codebase responsif dengan asumsi identik; perbedaan koneksi, sesi, dan interaksi terlalu besar.
 
 ## Stack Teknologi Ringkas
 Pemilihan stack teknologi untuk admin web frontend berfokus pada performa, ekosistem React modern, dan keselarasan tipe data dengan DTO backend. 

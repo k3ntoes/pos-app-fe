@@ -58,6 +58,20 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 <!-- END BEADS INTEGRATION -->
 
 
+## Agent skills
+
+### Issue tracker
+
+Issues and task dependencies are tracked using Beads (`bd`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default 5 canonical triage roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context domain architecture via `CONTEXT-MAP.md` and ADRs. See `docs/agents/domain.md`.
+
 ## Build & Test
 
 _Add your build and test commands here_

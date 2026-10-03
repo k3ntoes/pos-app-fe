@@ -49,9 +49,11 @@ Tujuan: admin web terasa seperti aplikasi utuh (menggunakan struktur komponen da
 
 Deliverables:
 - header stabil dengan unit switcher
-- navigasi utama: Users, Roles, Units, Audit Log
+- navigasi utama: Users, Roles
 - navigasi dikendalikan permission
 - layout konten yang konsisten di semua halaman
+
+> **Catatan:** Navigasi untuk Units dan Audit Log akan ditambahkan saat backend endpoint masing-masing tersedia (`/api/v1/units` dan `/api/v1/audit`). Jangan tambahkan menu yang belum punya endpoint backend.
 
 Prinsip:
 - unit switcher wajib ada
@@ -90,6 +92,9 @@ Deliverables (mengacu pada [Dokumen 02 — Modul Users, Roles, & Units](02-featu
 - unit context switcher di header
 - tindakan unit bila diizinkan
 
+> [!WARNING]
+> **Backend endpoint untuk Units belum tersedia.** Endpoint `/api/v1/units` belum diimplementasikan di backend (per Oktober 2026). FE tidak bisa membangun fitur ini sampai endpoint tersebut tersedia. Lihat tabel Backend Readiness di bawah.
+
 Unit adalah batas data; layar lain perlu konteks ini.
 
 ---
@@ -101,6 +106,9 @@ Deliverables (mengacu pada detail fitur di [Dokumen 03 — Fitur Audit Log](03-a
 - urutan penelusuran kronologis
 - detail peristiwa bila relevan
 - izin baca audit dihormati
+
+> [!WARNING]
+> **Backend endpoint untuk Audit belum tersedia.** Endpoint `/api/v1/audit` belum diimplementasikan di backend (per Oktober 2026). Domain model dan Redis pipeline telah ada di backend, namun API endpoint publik belum dibuat. FE tidak bisa membangun fitur ini sampai endpoint tersebut tersedia. Lihat tabel Backend Readiness di bawah.
 
 Audit dibangun cukup awal karena ini concern utama operasional dan keamanan.
 
@@ -119,12 +127,33 @@ Tanpa ini, setiap fitur terlihat berdiri sendiri dan susah dipelihara.
 
 ---
 
+## Status Backend Readiness
+
+Tabel ini mencerminkan status implementasi backend per Oktober 2026. FE hanya boleh membangun fitur yang endpoint-nya sudah ✅ tersedia.
+
+| Fitur FE | Endpoint Backend | Status |
+|---|---|---|
+| Auth login/logout | `POST /auth/login`, `POST /auth/logout` | ✅ Tersedia |
+| Identity (me) | `GET /auth/me` | ✅ Tersedia |
+| Users CRUD | `GET/POST /api/v1/users` | ✅ Tersedia |
+| User status update | `PATCH /api/v1/users/{id}/status` | ✅ Tersedia |
+| User role assignment | `GET/POST/DELETE /api/v1/users/{id}/roles` | ✅ Tersedia |
+| Roles CRUD | `GET/POST/PUT/DELETE /api/v1/roles` | ✅ Tersedia |
+| Permission editor | `PUT /api/v1/roles/{id}/permissions` | ✅ Tersedia |
+| Permissions list | `GET /api/v1/permissions` | ✅ Tersedia |
+| Units CRUD | `/api/v1/units` | ❌ Belum ada |
+| Audit Log list | `/api/v1/audit` | ❌ Belum ada |
+
+---
+
 ## 8. Yang ditunda
 Tidak masuk ruang lingkup awal (seperti dijelaskan pada [Dokumen 00 — Frontend Overview](00-frontend-overview.md)):
 - Sales / Cashier
 - Inventory
 - Purchase Order
 - Finance screens lanjutan
+- Units (backend endpoint `/api/v1/units` belum tersedia)
+- Audit Log (backend endpoint belum tersedia; domain model dan Redis pipeline ada)
 
 Alasannya sama seperti di dokumen overview: domain belum merupakan cakupan backend awal.
 
@@ -135,4 +164,3 @@ Mulai dari setup ([Dokumen 11 — Tooling & Biome](11-tooling-and-biome.md)), la
 
 ---
 ⬅ **Sebelumnya:** [Dokumen 05 — Kontrak API Backend](05-api-contract.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 07 — Bentuk Contoh Respon API](07-example-response-shapes.md)
-

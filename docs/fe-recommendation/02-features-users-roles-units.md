@@ -1,7 +1,7 @@
 # 02 — Users, Roles, and Units Feature
 
 > [!NOTE]
-> Dokumen ini merinci fitur administrasi awal (Users, Roles, Units). Rujukan arsitektur merujuk pada [01-frontend-architecture.md](01-frontend-architecture.md) dan [10-frontend-folder-structure.md](10-frontend-folder-structure.md). Kontrak API, format error, paginasi, dan terminologi **`unit_scope`** vs **`unit_id`** merujuk pada Single Source of Truth di [05-api-contract.md](05-api-contract.md) serta katalog respons di [07-example-response-shapes.md](07-example-response-shapes.md).
+> Dokumen ini merinci fitur administrasi awal (Users, Roles, Units). Rujukan arsitektur merujuk pada [01-frontend-architecture.md](01-frontend-architecture.md) dan [10-frontend-folder-structure.md](10-frontend-folder-structure.md). Kontrak API, format error, paginasi, dan terminologi **`unit_id`** merujuk pada Single Source of Truth di [05-api-contract.md](05-api-contract.md) serta katalog respons di [07-example-response-shapes.md](07-example-response-shapes.md).
 
 ## Latar
 Fitur ini adalah fitur admin web pertama yang paling masuk akal dibangun, karena backend sudah memiliki domain Users & Roles, Unit, dan mekanisme auth yang cukup matang. Fitur ini juga mengajarkan struktur list/detail/form yang nanti bisa digunakan untuk fitur lain.
@@ -12,7 +12,7 @@ Frontend web harus memungkinkan admin yang berwenang untuk:
 - membaca dan mengelola role
 - melihat unit dan konfigurasi unit
 - men-assign user ke role dalam unit tertentu (`unit_id`)
-- memahami konteks unit saat ini melalui `unit_scope`
+- memahami konteks unit saat ini melalui role assignments — scope unit user **tidak** disimpan sebagai field langsung di user object, melainkan berasal dari sub-endpoint role assignments (`/api/v1/users/{user_id}/roles`)
 
 Semua ini tetap tunduk pada aturan backend; UI hanya menyajikan dan mengoordinasi, bukan menerapkan kebijakan izin.
 
@@ -20,7 +20,7 @@ Semua ini tetap tunduk pada aturan backend; UI hanya menyajikan dan mengoordinas
 Navigasi web harus mengikuti bounded context yang ada. Urutan awal yang masuk akal:
 - Users
 - Roles
-- Units
+- Units *(saat ini ditunda — backend endpoint `/api/v1/units` belum tersedia)*
 - Audit Log (lihat [03-audit-feature.md](03-audit-feature.md))
 
 Navigasi ini bukan fix final; bisa dirapikan lagi, tapi harus tetap selaras dengan konteks domain, bukan menu ad-hoc.
@@ -30,11 +30,11 @@ Layar user list wajib memiliki:
 - search atau filter yang berguna
 - pagination
 - sorting yang masuk akal
-- kolom yang membantu identifikasi: username, nama, status, email jika ada, unit/scope jika relevan (`unit_scope`)
+- kolom yang membantu identifikasi: username, nama, status, email jika ada — informasi scope unit user **tidak** tersedia sebagai field langsung pada user object; scope unit diperoleh dari endpoint role assignments secara terpisah
 - aksi per baris yang dibutuhkan dan diizinkan
 - loading state, empty state, dan error state yang eksplisit
 
-Kolom dan aksi tidak harus memuat semua property user; pilih yang mendukung tugas admin, bukan yang hanya “tersedia di model”.
+Kolom dan aksi tidak harus memuat semua property user; pilih yang mendukung tugas admin, bukan yang hanya "tersedia di model".
 
 ## User detail
 Detail user sebaiknya:
@@ -50,19 +50,23 @@ Form create/edit wajib:
 - menggunakan React Hook Form + Zod (merujuk pada [09-coding-rules.md](09-coding-rules.md))
 - memvalidasi input di sisi klien sesuai kebijakan yang relevan
 - menyampaikan error dengan jelas (termasuk mapping error 422 `form.setError()`)
-- merefleksikan kebijakan password backend bila form terkait password
 - tidak menampilkan atau meminta password mentah dalam tempat yang salah
+
+> [!IMPORTANT]
+> Form **create user** tidak memerlukan input password dari pengguna. Backend menerima hanya `username`, `email` (opsional), dan `full_name`. Password sementara (`temporary_password`) di-generate otomatis oleh backend dan dikembalikan di response create user. FE cukup menampilkan `temporary_password` tersebut kepada admin setelah user berhasil dibuat, agar bisa diteruskan ke pengguna baru.
 
 Form adalah tempat di mana UX harus membantu, bukan sekadar validasi pesan teknis.
 
 ## Role list
 Role list sebaiknya:
 - menampilkan nama role, kode role, deskripsi
-- menandakan sistem vs kustom, karena sistem role immutable
+- menandakan sistem vs kustom, karena sistem role immutable (ditandai dengan field `is_system: true` di response role)
 - menyoroti bahwa perubahan role mempengaruhi semua user yang diberi role itu
 - memungkinkan tindakan role yang diizinkan
 
 Role bukan entitas yang dihapus seenak mudah. UI harus mencerminkan aturan: custom role bisa dihapus hanya jika tidak ada assignment yang merujuknya.
+
+System roles yang tersedia di backend: `owner` (semua permission), `admin_gudang`, `admin_keuangan`, `supervisor`, `kasir`. Semua system role bersifat immutable (`is_system: true`) dan tidak dapat diubah atau dihapus melalui UI.
 
 ## Role detail / role permission editor
 Jika layar role memungkinkan:
@@ -79,17 +83,20 @@ Unit list sebaiknya:
 - membantu admin memahami batas kepemilikan data
 - mendukung aksi yang relevan jika diizinkan
 
+> [!WARNING]
+> Backend API untuk Units (`/api/v1/units`) **belum tersedia**. Domain model `Unit` sudah ada di backend, namun API router untuk endpoint ini belum diimplementasikan. Fitur Unit list di FE bergantung sepenuhnya pada endpoint tersebut dan tidak dapat dibangun hingga backend endpoint siap.
+
 Unit adalah batas data di backend. Itu berarti banyak layar di admin web nanti akan terikat konteks unit ini.
 
 ## Unit assignment UI & Terminologi (SSOT)
 User-to-role assignment di backend dan frontend dibedakan secara tegas melalui terminologi berikut:
-- **`unit_scope`**: Daftar hak akses unit user (menentukan unit mana saja yang diizinkan diakses oleh user dalam profil/otorisasi).
+- **Unit scope user**: Ditentukan oleh kumpulan role assignments yang dimiliki user, bukan oleh field tunggal di user object. Endpoint `/api/v1/users/{user_id}/roles` mengembalikan semua `UserRoleAssignment` milik user. Setiap assignment memiliki `unit_id`; jika `unit_id` bernilai `null`, assignment tersebut bersifat global (berlaku di semua unit).
 - **`unit_id`**: ID unit spesifik tempat user ditugaskan atau tempat transaksi/resource dicatat (`unit_id` bernilai `null` jika global).
 - Multiple assignment bersifat aditif.
 
 Jadi UI assignment harus:
 - memungkinkan memilih role untuk user dalam unit tertentu (`unit_id`)
-- memungkinkan melihat global assignment vs scoped assignment (`unit_scope`)
+- memungkinkan melihat global assignment (assignment dengan `unit_id: null`) vs scoped assignment (assignment dengan `unit_id` spesifik) melalui data dari `/api/v1/users/{user_id}/roles`
 - menampilkan bahwa assignment tetap ada meskipun user suspended atau deactivated
 - tidak menyatakan bahwa assignment otomatis hilang saat status berubah
 
@@ -108,14 +115,25 @@ Saran perilaku:
 
 ## Permission-aware visibility
 Frontend tidak boleh menampilkan menu atau tombol yang tidak relevan. Tapi tetap:
-- sembunyikan apa yang tidak bisa digunakan, bukan hanya supaya “rapi”
+- sembunyikan apa yang tidak bisa digunakan, bukan hanya supaya "rapi"
 - tangani 403 secara eksplisit jika akses dibutuhkan (merujuk pada [05-api-contract.md](05-api-contract.md))
 - gunakan permission set untuk menentukan visibilitas, bukan hardcode role name
 
-Izin yang relevan di area ini adalah:
-- `users:read`, `users:manage`
-- `roles:read`, `roles:manage`
-- `units:read`, `units:manage`
+Backend memiliki 16 permission string yang tersedia:
+
+| Grup | Permissions |
+|---|---|
+| Users | `users:read`, `users:manage` |
+| Roles | `roles:read`, `roles:manage` |
+| Units | `units:read`, `units:manage` |
+| Products | `products:read`, `products:manage` |
+| Inventory | `inventory:read`, `inventory:manage` |
+| Orders | `orders:read`, `orders:create`, `orders:void` |
+| Sales | `sales:report` |
+| Finance | `finance:read`, `finance:manage` |
+
+> [!NOTE]
+> FE admin web saat ini hanya mengekspos permission grup **Users, Roles, dan Units** (`users:read`, `users:manage`, `roles:read`, `roles:manage`, `units:read`, `units:manage`). Permission bisnis lain (`products:*`, `inventory:*`, `orders:*`, `sales:report`, `finance:*`) relevan untuk FE di fase berikutnya dan belum perlu diekspos di admin web ini.
 
 Frontend bisa gunakan izin ini untuk:
 - Apakah user bisa melihat menu Users
@@ -145,7 +163,7 @@ Jika user mencoba aksi tanpa izin:
 Dan selalu sediakan `request_id` di error sehingga support bisa melacak peristiwa.
 
 ## Ringkasan
-Fitur Users, Roles, dan Units adalah pondasi admin web. Mulai dari list yang terpaginasikan, detail yang informatif, form yang terarah, assignment yang memahami konteks unit (`unit_scope` vs `unit_id`), dan navigasi yang dikendalikan permission. Jangan mengejar tampilan mewah dulu; bangun pola yang konsisten, aman, dan bisa dikembangkan. Rujuk [05-api-contract.md](05-api-contract.md) dan [07-example-response-shapes.md](07-example-response-shapes.md) untuk detail payload.
+Fitur Users, Roles, dan Units adalah pondasi admin web. Mulai dari list yang terpaginasikan, detail yang informatif, form yang terarah, assignment yang memahami konteks unit (scope ditentukan oleh role assignments via `/api/v1/users/{user_id}/roles`, bukan field tunggal di user object), dan navigasi yang dikendalikan permission. Jangan mengejar tampilan mewah dulu; bangun pola yang konsisten, aman, dan bisa dikembangkan. Rujuk [05-api-contract.md](05-api-contract.md) dan [07-example-response-shapes.md](07-example-response-shapes.md) untuk detail payload.
 
 ---
 ⬅ **Sebelumnya:** [Dokumen 01 — Arsitektur Frontend](01-frontend-architecture.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 03 — Fitur Audit Log](03-audit-feature.md)

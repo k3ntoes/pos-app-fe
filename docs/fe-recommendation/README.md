@@ -41,3 +41,20 @@ Panduan arsitektur frontend web POS, kontrak integrasi API backend, coding stand
 2. **Modular Feature-Based:** Pengorganisasian direktori berbasis fitur (`features/`) untuk menjaga isolasi domain dan skalabilitas kode.
 3. **Zero Bloat:** Pemilihan library yang ringan, teruji, dan langsung pada sasaran (YAGNI, menghindari over-engineering).
 4. **Form & Zod Bridging:** Validasi form terpusat menggunakan React Hook Form yang diikat dengan skema Zod untuk konsistensi tipe client-side dan DTO mapping.
+
+---
+
+## 🚦 Status Backend Readiness (per Oktober 2026)
+
+| Fitur FE | Status Backend |
+| :--- | :--- |
+| Auth (login, logout, me) | ✅ Tersedia |
+| Users CRUD + Role Assignment | ✅ Tersedia |
+| Roles CRUD + Permission Editor | ✅ Tersedia |
+| Permissions List | ✅ Tersedia |
+| Units CRUD | ❌ Endpoint `/api/v1/units` belum ada |
+| Audit Log | ❌ Endpoint belum ada (domain & Redis pipeline ada) |
+| Mobile Auth (JWT) | ✅ Backend tersedia di `/auth/mobile/...` — FE Android client ditunda |
+
+> [!IMPORTANT]
+> FE hanya boleh membangun fitur yang endpoint backend-nya sudah tersedia. Lihat detail di [06-frontend-scope-tasks.md](06-frontend-scope-tasks.md).
