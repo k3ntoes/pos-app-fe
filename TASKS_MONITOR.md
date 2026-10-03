@@ -87,3 +87,8 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
   - [ ] Implementasi Create/edit role form (dedicated page) dengan permission editor 16 permissions yang dikelompokkan
   - [ ] Implementasi perlindungan immutable system roles
   - [ ] Implementasi Delete role modal (hanya aktif jika tidak ada active assignments)
+
+---
+
+## Catatan Arsitektur
+- `CONTEXT.md` telah dipecah menjadi multi-context domain architecture (`docs/domain/`, `CONTEXT-MAP.md`).

@@ -1,7 +1,7 @@
 # POS App Frontend — Definitive Coding Rules & Standards
 
 > [!IMPORTANT]
-> Dokumen ini adalah panduan dan aturan baku (Coding Rules) untuk pengembangan frontend POS Admin Web. Seluruh kontributor wajib mematuhi spesifikasi definitif, arsitektur, penanganan error, manajemen state, dan aturan tooling yang tertera di dokumen ini agar selaras 100% dengan dokumen rekomendasi fe (`docs/fe-recommendation/`) dan ADR (`docs/adr/`).
+> Dokumen ini adalah panduan dan aturan baku (Coding Rules) untuk pengembangan frontend POS Admin Web. Seluruh kontributor wajib mematuhi spesifikasi definitif, arsitektur, penanganan error, manajemen state, dan aturan tooling yang tertera di dokumen ini agar selaras 100% dengan dokumen rekomendasi fe (`docs/fe-recommendation/`), ADR (`docs/adr/`), dan [DESIGN.md](./DESIGN.md).
 
 ---
 
@@ -17,7 +17,7 @@ Frontend POS dibangun dengan stack teknologi modern yang telah dikunci dalam ADR
 6. **Data Presentation**: **TanStack Table v8** (headless table berperforma tinggi untuk server-side pagination, sorting, dan filtering).
 7. **Form State & Validasi**: **React Hook Form v7+** dipadukan dengan **Zod** schema validation (selaras dengan DTO backend).
 8. **Styling & UI Components**: 
-   - **Tailwind CSS v4** dengan pendekatan CSS-first `@theme` (tanpa `tailwind.config.js`).
+   - **Tailwind CSS v4** dengan pendekatan CSS-first `@theme` (tanpa `tailwind.config.js`). Rujuk [DESIGN.md](./DESIGN.md) untuk spesifikasi palet warna, tipografi, dan token lengkap.
    - **shadcn/ui** menggunakan **Base UI Engine** (`npx shadcn@latest init --base base`) sesuai ADR 0002.
 9. **Tooling, Linting & Formatting**: **Biome** (linter dan formatter tunggal berkecepatan tinggi menggantikan ESLint/Prettier).
 10. **Utilitas Tambahan**: **Sonner** (Toast notifications), **Lucide React** (ikon SVG konsisten), dan manipulasi tanggal standar ringan (`date-fns`/`dayjs`).
@@ -89,7 +89,7 @@ Struktur direktori wajib mematuhi standar modular:
    - Gunakan format dan linting dari Biome dengan indentasi spasi 2, tanda kutip ganda/tunggal konsisten, serta sorting imports otomatis.
    - Jalankan pemeriksaan linter sebelum melakukan commit atau push.
 2. **Tailwind CSS v4 CSS-First `@theme`**:
-   - Definisikan custom design tokens langsung di file CSS utama menggunakan direktif `@theme` (menggantikan konfigurasi JavaScript lama).
+   - Definisikan custom design tokens langsung di file CSS utama menggunakan direktif `@theme` (menggantikan konfigurasi JavaScript lama). Rujuk spesifikasi [DESIGN.md](./DESIGN.md).
    - Hindari penggunaan inline hex acak; gunakan kelas utilitas Tailwind atau variabel token tema yang telah ditetapkan.
 
 ---
