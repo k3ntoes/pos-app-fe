@@ -12,5 +12,3 @@ Rules:
 - If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context
 - After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
-- **External API Forbiddance**: External Gemini API calls or external API keys are strictly forbidden for graphify. Semantic extraction must always be executed by internal subagents using model `flash_lite` following `references/extraction-spec.md` (or AST-only), never through external API calls.
-

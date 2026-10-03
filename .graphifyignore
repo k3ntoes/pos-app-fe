@@ -1,0 +1,86 @@
+# Knowledge Graph Output (Prevent recursive parsing)
+graphify-out/
+
+# Git & Code Intelligence Tools
+.git/
+.gitnexus/
+
+# Dependencies & Package Managers
+node_modules/
+.bun/
+.yarn/
+.pnp*
+
+# Build Outputs, Compilations & Caches
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.turbo/
+.cache/
+.biomecache
+.eslintcache
+*.tsbuildinfo
+
+# Lockfiles
+package-lock.json
+bun.lockb
+bun.lock
+pnpm-lock.yaml
+yarn.lock
+*.lock
+*.lockb
+
+# Test Runner Outputs & Coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+
+# Binary, Media, Assets & Fonts
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.ico
+**/*.webp
+**/*.avif
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+**/*.otf
+**/*.pdf
+**/*.zip
+**/*.tar.gz
+**/*.tgz
+**/*.mp3
+**/*.mp4
+**/*.wav
+
+# Compiled/Minified Code & Source Maps
+**/*.min.js
+**/*.min.css
+**/*.map
+
+# Environment & Secret Files
+.env*
+
+# Beads Local Database & Binary Backups (keep markdown docs)
+.beads/embeddeddolt/
+.beads/backup/
+.beads/proxieddb/
+.dolt/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.beads-credential-key
+
+# Agent Boilerplate Configs & Schema Wrappers
+.agents/skills/**/agents/*.yaml
+.codex/
+.gemini/
+.claude/

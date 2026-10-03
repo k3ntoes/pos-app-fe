@@ -1,11 +1,96 @@
+# Dependencies & Package Managers
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.bun/
 
-# Beads / Dolt files (added by bd init)
+# Production Build Outputs & Caches
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.local
+!*.env.example
+!*.env.template
+
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+bun.lockb.log
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Linter & Formatter Caches
+.eslintcache
+.biomecache
+.stylelintcache
+.prettiercache
+
+# OS & Editor Artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-workspace
+*.sublime-project
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Beads Issue Tracker (Local Dolt DB / Credentials / Backups)
 .dolt/
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 .beads-credential-key
 .beads/proxieddb/
+.beads/embeddeddolt/
+.beads/backup/
+.beads/last-touched
 
-.claude/
-.agents/
-.gitnexus
+# GitNexus & Graphify Generated Outputs
+.gitnexus/
 graphify-out/
+
+# Agent/Assistant Local Caches & Scratch
+.gemini/
+.codex/
+.agents/scratch/
+scratch/
