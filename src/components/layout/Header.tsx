@@ -4,8 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -44,7 +42,7 @@ export function Header() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="right" className="w-56">
-              <DropdownMenuLabel>
+              <div className="px-2 py-1.5 text-sm font-semibold">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none text-gray-900">
                     {user.name || user.username}
@@ -53,13 +51,13 @@ export function Header() {
                     {user.email || user.username}
                   </p>
                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
+              </div>
+              <div className="h-px bg-gray-200 my-1" />
               <DropdownMenuItem onClick={() => navigate("/change-password")}>
                 <KeyRound className="mr-2 h-4 w-4" />
                 <span>Ubah Password</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <div className="h-px bg-gray-200 my-1" />
               <DropdownMenuItem
                 onClick={logout}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
