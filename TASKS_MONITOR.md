@@ -12,10 +12,19 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 | [`pos-app-fe-0x9`](#pos-app-fe-0x9) | Implementasi fitur Users | P2 | Closed | Depends on: `pos-app-fe-aep` |
 | [`pos-app-fe-0rg`](#pos-app-fe-0rg) | Implementasi fitur Roles | P2 | Closed | Depends on: `pos-app-fe-aep` |
 | [`pos-app-fe-jnd`](#pos-app-fe-jnd) | Add change password menu in Header | P2 | Closed | - |
+| [`pos-app-fe-6s4`](#pos-app-fe-6s4) | Fix edit user HTTP method to PATCH | P1 | Closed | - |
 
 ---
 
 ## Detail Checklist Subtask
+
+### <a id="pos-app-fe-6s4"></a>7. pos-app-fe-6s4: Fix edit user HTTP method to PATCH
+- **Prioritas:** P1
+- **Status:** Closed
+- **Dependency:** -
+- **Subtasks:**
+  - [x] Ubah HTTP method pada fungsi `updateUser` di `src/api/users.ts` dari `PUT` menjadi `PATCH`.
+  - [x] Jalankan validasi lint, tsc, dan build.
 
 ### <a id="pos-app-fe-ie5"></a>1. pos-app-fe-ie5: Setup project foundation & tooling
 - **Prioritas:** P1
