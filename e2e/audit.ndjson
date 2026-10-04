@@ -1,8 +1,19 @@
-{"test":"e2e/smoke.spec.ts - halaman utama redirect ke login jika belum auth","status":"pass","note":"Redirect berfungsi"}
-{"test":"e2e/smoke.spec.ts - halaman login bisa diakses","status":"pass","note":"Form login muncul, tapi input name='email' salah: seharusnya name='username'"}
+{"test":"e2e/auth-storage.setup.ts - authenticate sebagai admin","status":"pass","note":"Login berhasil pakai superadmin / Admin123, disimpan ke auth-storage.json"}
 {"test":"e2e/login-protected.spec.ts - akses halaman terproteksi tanpa auth mengarah ke /login","status":"pass"}
-{"test":"e2e/login-protected.spec.ts - setelahlogin bisa akses halaman berproteksi","status":"pass","note":"Login pakai user 'admin' berhasil"}
+{"test":"e2e/login-protected.spec.ts - setelah login bisa akses halaman berproteksi","status":"pass"}
 {"test":"e2e/roles.spec.ts - halaman roles bisa diakses setelah login","status":"pass"}
+{"test":"e2e/smoke.spec.ts - halaman utama redirect ke login jika belum auth","status":"pass"}
+{"test":"e2e/smoke.spec.ts - halaman login bisa diakses","status":"pass"}
+{"test":"e2e/smoke.spec.ts - login gagal dengan kredensial salah","status":"pass","note":"Login gagal tetap di-redirect ke /login"}
 {"test":"e2e/units.spec.ts - halaman units bisa diakses setelah login","status":"pass"}
 {"test":"e2e/users.spec.ts - halaman users bisa diakses setelah login","status":"pass"}
 {"test":"e2e/users.spec.ts - halaman create user bisa diakses setelah login","status":"pass"}
+{"test":"e2e/roles-crud.spec.ts - roles list tampil setelah login","status":"fail","note":"Halaman /roles setelah login tetap redirect ke /login; bisa jadi backend belum tersedia atau session tidak valid"}
+{"test":"e2e/roles-crud.spec.ts - bisa membuka halaman buat role baru","status":"fail","note":"Sama, redirect ke /login"}
+{"test":"e2e/roles-crud.spec.ts - bisa membuka detail role","status":"fail","note":"Sama, redirect ke /login"}
+{"test":"e2e/users-crud.spec.ts - users list tampil setelah login","status":"fail","note":"Sama, /users setelah login redirect ke /login"}
+{"test":"e2e/users-crud.spec.ts - bisa membuka halaman buat user baru","status":"fail","note":"Sama, redirect ke /login"}
+{"test":"e2e/users-crud.spec.ts - bisa membuka detail user","status":"fail","note":"Sama, redirect ke /login"}
+{"finding":"Login form pakai name='username', bukan name='email'","status":"note","severity":"info","file":"src/features/auth/LoginPage.tsx"}
+{"finding":"Test E2E login pakai kredensial hardcoded superadmin / Admin123","status":"note","severity":"low","file":"e2e/auth-storage.setup.ts"}
+{"finding":"Halaman setelah login beragam tetap redirect ke /login di environment ini","status":"bug-ish","severity":"high","file":"e2e/roles-crud.spec.ts,e2e/users-crud.spec.ts"}

@@ -11,6 +11,7 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 | [`pos-app-fe-aep`](#pos-app-fe-aep) | Implementasi App Shell (header, unit switcher, navigasi permission-aware) | P1 | Closed | Depends on: `pos-app-fe-xz2`<br>Blocks: `pos-app-fe-0x9`, `pos-app-fe-0rg` |
 | [`pos-app-fe-0x9`](#pos-app-fe-0x9) | Implementasi fitur Users | P2 | Closed | Depends on: `pos-app-fe-aep` |
 | [`pos-app-fe-0rg`](#pos-app-fe-0rg) | Implementasi fitur Roles | P2 | Closed | Depends on: `pos-app-fe-aep` |
+| [`pos-app-fe-jnd`](#pos-app-fe-jnd) | Add change password menu in Header | P2 | Closed | - |
 
 ---
 
@@ -87,6 +88,15 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
   - [x] Implementasi Create/edit role form (dedicated page) dengan permission editor 16 permissions yang dikelompokkan
   - [x] Implementasi perlindungan immutable system roles
   - [x] Implementasi Delete role modal (hanya aktif jika tidak ada active assignments)
+
+---
+
+### <a id="pos-app-fe-jnd"></a>6. pos-app-fe-jnd: Add change password menu in Header
+- **Prioritas:** P2
+- **Status:** Closed
+- **Dependency:** -
+- **Subtasks:**
+  - [x] Modifikasi `Header.tsx` menggunakan `DropdownMenu`.
 
 ---
 
