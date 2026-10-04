@@ -52,7 +52,7 @@ Seluruh elemen keuangan kritis (Total Belanja, Kembalian, Status Pembayaran) waj
 ## 3. Fitts's Law, Touch Ergonomics & Hick's Law
 
 ### 3.1 Touch Ergonomics & Tap Targets
-- **Minimum Tap Target**: `44px x 44px` (`min-h-[44px] min-w-[44px]`).
+- **Minimum Tap Target**: `44px x 44px` (`min-h-11 min-w-[44px]`).
 - **Recommended POS Numpad & Payment Buttons**: `48px x 48px` hingga `56px` dengan jarak pemisah (*spacing*) minimal `8px` untuk mencegah salah sentuh (*fat finger error*) pada layar sentuh POS (*touchscreen terminal*).
 
 ### 3.2 Hick's Law & Rapid Scanning

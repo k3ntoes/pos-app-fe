@@ -1,60 +1,37 @@
-# Rekomendasi Arsitektur & Spesifikasi Frontend POS
+# Dokumen Rekomendasi Frontend — POS Application (SSOT Index)
 
-Panduan arsitektur frontend web POS, kontrak integrasi API backend, coding standards, dan spesifikasi stack teknologi.
-
-## 🧭 Alur Baca (Reading Path) Berdasarkan Peran
-
-- **Arsitek / Lead FE:**
-  [00-frontend-overview.md](00-frontend-overview.md) → [12-stack-specification.md](12-stack-specification.md) → [01-frontend-architecture.md](01-frontend-architecture.md) → [05-api-contract.md](05-api-contract.md) → [10-frontend-folder-structure.md](10-frontend-folder-structure.md) → [11-tooling-and-biome.md](11-tooling-and-biome.md)
-
-- **Pengembang Fitur:**
-  [00-frontend-overview.md](00-frontend-overview.md) → [01-frontend-architecture.md](01-frontend-architecture.md) → [05-api-contract.md](05-api-contract.md) → [07-example-response-shapes.md](07-example-response-shapes.md) → [09-coding-rules.md](09-coding-rules.md) → [02-features-users-roles-units.md](02-features-users-roles-units.md) → [03-audit-feature.md](03-audit-feature.md)
-
-- **UI/UX & Styling:**
-  [00-frontend-overview.md](00-frontend-overview.md) → [04-uiux-best-practices.md](04-uiux-best-practices.md) → [08-tailwind-guidance.md](08-tailwind-guidance.md) → [01-frontend-architecture.md](01-frontend-architecture.md) → [10-frontend-folder-structure.md](10-frontend-folder-structure.md)
+Selamat datang di pusat dokumentasi rekomendasi arsitektur, kontrak API, dan panduan implementasi Frontend untuk **POS Application**. Seluruh dokumen di bawah ini disusun sebagai **Single Source of Truth (SSOT)** yang sepenuhnya selaras dengan arsitektur backend FastAPI, Context Map, dan Architecture Decision Records (`docs/adr/`).
 
 ---
 
-## 📑 Daftar Dokumen
+## 📑 Daftar Isi Dokumen (00 s.d. 12)
 
-| No. | Dokumen | Topik Utama | Peran Utama |
-| :--- | :--- | :--- | :--- |
-| 00 | [00-frontend-overview.md](00-frontend-overview.md) | Gambaran umum, cakupan v1 admin web, prinsip dasar | Semua Peran |
-| 01 | [01-frontend-architecture.md](01-frontend-architecture.md) | Arsitektur inti, state management, error handling | Arsitek & Lead FE |
-| 02 | [02-features-users-roles-units.md](02-features-users-roles-units.md) | Spesifikasi fitur Users, Roles, Units | Pengembang Fitur |
-| 03 | [03-audit-feature.md](03-audit-feature.md) | Spesifikasi fitur Audit Log & tracking | Pengembang Fitur |
-| 04 | [04-uiux-best-practices.md](04-uiux-best-practices.md) | Panduan UI/UX, prinsip layout, aksesibilitas | UI/UX & Styling |
-| 05 | [05-api-contract.md](05-api-contract.md) | Kontrak integrasi API backend, format error & pagination | Arsitek & Pengembang Fitur |
-| 06 | [06-frontend-scope-tasks.md](06-frontend-scope-tasks.md) | Ruang lingkup tugas dan backlog implementasi | Project Manager / Lead FE |
-| 07 | [07-example-response-shapes.md](07-example-response-shapes.md) | Contoh struktur JSON response API backend | Pengembang Fitur |
-| 08 | [08-tailwind-guidance.md](08-tailwind-guidance.md) | Panduan styling Tailwind CSS & design token | UI/UX & Styling |
-| 09 | [09-coding-rules.md](09-coding-rules.md) | Standar penulisan kode, linting, dan konvensi | Pengembang Fitur |
-| 10 | [10-frontend-folder-structure.md](10-frontend-folder-structure.md) | Struktur direktori dan modular feature-based layout | Arsitek & Lead FE |
-| 11 | [11-tooling-and-biome.md](11-tooling-and-biome.md) | Konfigurasi tooling, build, linter, dan formatter | Arsitek & Lead FE |
-| 12 | [12-stack-specification.md](12-stack-specification.md) | Spesifikasi detail stack teknologi & library pilihan | Arsitek & Lead FE |
+1. **[00 — Frontend Overview & System Context](00-frontend-overview.md)**
+   - Ikhtisar sistem, bounded contexts (Auth, Users, Roles, Units, Audit), arsitektur dual-auth (Web vs Mobile), dan kepatuhan pada ADRs.
+2. **[01 — Frontend Architecture & Client Configuration](01-frontend-architecture.md)**
+   - Konfigurasi HTTP client (`withCredentials`, CSRF header, interceptors), session guard, dan penanganan `must_change_password` (ADR-0002).
+3. **[02 — Features: Users, Roles, Units & Permissions](02-features-users-roles-units.md)**
+   - Spesifikasi fungsional manajemen User (temporary password, reset, status), Roles (RBAC, system role, ADR-0003/0004), Units, dan User Role Assignments.
+4. **[03 — Audit Feature & Traceability](03-audit-feature.md)**
+   - Arsitektur audit backend (Redis Stream, consumer, immutable logs) dan ketertelusuran frontend via header `X-Request-ID`.
+5. **[04 — UI/UX Best Practices & Component Guidelines](04-uiux-best-practices.md)**
+   - Panduan UI/UX, modal blokade wajib ganti password, dialog *copy-to-clipboard* password sementara, dan badge status warna.
+6. **[05 — API Contract for Admin Web & Mobile (SSOT)](05-api-contract.md)**
+   - Kontrak API lengkap: Base URL, timestamp ISO8601, format paginasi, error schema standar (`ErrorResponse`), dan daftar seluruh endpoint FastAPI.
+7. **[06 — Frontend Scope & Implementation Tasks](06-frontend-scope-tasks.md)**
+   - Rincian tugas implementasi (task breakdown) dari fondasi hingga modul fitur lengkap.
+8. **[07 — Example Response Shapes (JSON Fixtures Catalog)](07-example-response-shapes.md)**
+   - Katalog konkret payload JSON (fixtures) untuk request dan response seluruh endpoint backend.
+9. **[08 — Tailwind CSS & UI Component Styling Guidance](08-tailwind-guidance.md)**
+   - Standarisasi warna badge status, styling modal khusus, tabel data, dan form controls.
+10. **[09 — Frontend Coding Rules & TypeScript Standards](09-coding-rules.md)**
+    - Aturan penulisan kode, TypeScript strict mode, Zod validation schemas, dan isolasi custom hooks TanStack Query.
+11. **[10 — Frontend Folder Structure & Modular Organization](10-frontend-folder-structure.md)**
+    - Struktur direktori modular berbasis *feature-driven bounded contexts*.
+12. **[11 — Tooling, Linter, & Biome Configuration](11-tooling-and-biome.md)**
+    - Standar tooling modern, Biome formatter & linter, serta TypeScript 5.x.
+13. **[12 — Tech Stack Specification](12-stack-specification.md)**
+    - Spesifikasi pustaka inti (React, Vite/Next.js, Tailwind CSS, TanStack Query, React Hook Form + Zod, Lucide).
 
 ---
-
-## 💡 Prinsip Inti
-
-1. **Single Source of Truth:** Backend (MariaDB / FastAPI) adalah sumber kebenaran mutlak; frontend tunduk pada aturan server, otorisasi, dan validasi bisnis.
-2. **Modular Feature-Based:** Pengorganisasian direktori berbasis fitur (`features/`) untuk menjaga isolasi domain dan skalabilitas kode.
-3. **Zero Bloat:** Pemilihan library yang ringan, teruji, dan langsung pada sasaran (YAGNI, menghindari over-engineering).
-4. **Form & Zod Bridging:** Validasi form terpusat menggunakan React Hook Form yang diikat dengan skema Zod untuk konsistensi tipe client-side dan DTO mapping.
-
----
-
-## 🚦 Status Backend Readiness (per Oktober 2026)
-
-| Fitur FE | Status Backend |
-| :--- | :--- |
-| Auth (login, logout, me) | ✅ Tersedia |
-| Users CRUD + Role Assignment | ✅ Tersedia |
-| Roles CRUD + Permission Editor | ✅ Tersedia |
-| Permissions List | ✅ Tersedia |
-| Units CRUD | ❌ Endpoint `/api/v1/units` belum ada |
-| Audit Log | ❌ Endpoint belum ada (domain & Redis pipeline ada) |
-| Mobile Auth (JWT) | ✅ Backend tersedia di `/auth/mobile/...` — FE Android client ditunda |
-
-> [!IMPORTANT]
-> FE hanya boleh membangun fitur yang endpoint backend-nya sudah tersedia. Lihat detail di [06-frontend-scope-tasks.md](06-frontend-scope-tasks.md).
+*Dokumen ini diperbarui secara berkala sesuai dengan evolusi backend dan keputusan arsitektur proyek.*

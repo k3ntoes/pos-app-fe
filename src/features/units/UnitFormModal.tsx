@@ -9,16 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  type CreateUnitInput,
-  type UpdateUnitInput,
-  createUnitSchema,
-  updateUnitSchema,
-} from "@/schemas/unit";
+import { useUnitForm } from "@/hooks/useUnitForm";
+import type { CreateUnitInput, UpdateUnitInput } from "@/schemas/unit";
 import type { Unit } from "@/types/unit";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
 
 interface UnitFormModalProps {
   isOpen: boolean;
@@ -29,46 +22,15 @@ interface UnitFormModalProps {
 }
 
 export function UnitFormModal({ isOpen, onClose, onSubmit, unit, isLoading }: UnitFormModalProps) {
-  const isEditing = !!unit;
-
+  const { form, isEditing, codeError, handleSubmit } = useUnitForm({ unit, onSubmit });
   const {
     register,
-    handleSubmit,
-    reset,
     formState: { errors },
-  } = useForm<CreateUnitInput | UpdateUnitInput>({
-    resolver: zodResolver(isEditing ? updateUnitSchema : createUnitSchema),
-    defaultValues: {
-      code: "",
-      name: "",
-      address: "",
-      is_active: true,
-    },
-  });
-
-  useEffect(() => {
-    if (unit) {
-      reset({
-        code: unit.code,
-        name: unit.name,
-        address: unit.address || "",
-        is_active: unit.is_active,
-      });
-    } else {
-      reset({
-        code: "",
-        name: "",
-        address: "",
-        is_active: true,
-      });
-    }
-  }, [unit, reset]);
-
-  const codeError = (errors as Record<string, { message?: string }>).code;
+  } = form;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Unit / Cabang" : "Tambah Unit / Cabang Baru"}
@@ -80,7 +42,7 @@ export function UnitFormModal({ isOpen, onClose, onSubmit, unit, isLoading }: Un
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {!isEditing && (
             <div className="space-y-1">
               <Label htmlFor="code">Kode Unit</Label>

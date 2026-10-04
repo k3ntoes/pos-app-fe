@@ -67,7 +67,7 @@ export function TemporaryPasswordModal({
               type="button"
               onClick={handleCopy}
               variant="outline"
-              className="shrink-0 min-h-[44px]"
+              className="shrink-0 min-h-11"
             >
               {copied ? "Disalin!" : "Salin Password"}
             </Button>

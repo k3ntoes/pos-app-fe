@@ -46,7 +46,7 @@ export function Sidebar() {
     },
     {
       label: "Audit Trail",
-      to: "/audit",
+      to: "/audit-logs",
       icon: Activity,
       permission: "audit:read",
     },
@@ -71,7 +71,7 @@ export function Sidebar() {
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium min-h-[44px] transition-colors ${
+                `flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium min-h-11 transition-colors ${
                   isActive
                     ? "bg-blue-50 text-blue-700 font-semibold"
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"

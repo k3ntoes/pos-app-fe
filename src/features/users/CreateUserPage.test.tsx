@@ -70,7 +70,7 @@ describe("CreateUserPage", () => {
     await userEvent.selectOptions(selects[0], "unit-1");
     await userEvent.selectOptions(selects[1], "role-1");
 
-    await userEvent.click(screen.getByRole("button", { name: /Simpan & Buat User/i }));
+    await userEvent.click(screen.getByRole("button", { name: /Simpan User/i }));
 
     await waitFor(() => {
       expect(usersApi.createUser).toHaveBeenCalled();

@@ -1,23 +1,11 @@
-import { rolesApi } from "@/api/roles";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useRoleDetail } from "@/hooks/useRoleDetail";
+import { Link } from "react-router-dom";
 import { PermissionMatrix } from "./PermissionMatrix";
 
 export function RoleDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-
-  const {
-    data: role,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["role", id],
-    queryFn: () => rolesApi.getRoleById(id as string),
-    enabled: Boolean(id),
-  });
+  const { role, isLoading, error, navigate } = useRoleDetail();
 
   if (isLoading) {
     return <div className="p-8 text-center text-gray-500">Memuat detail role...</div>;
@@ -47,12 +35,18 @@ export function RoleDetailPage() {
           <p className="text-sm text-gray-500 mt-1">{role.description || "Tidak ada deskripsi."}</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" asChild>
-            <Link to="/roles">Kembali</Link>
-          </Button>
-          <Button asChild>
-            <Link to={`/roles/${role.id}/edit`}>Edit Role</Link>
-          </Button>
+          <Link
+            to="/roles"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+          >
+            Kembali
+          </Link>
+          <Link
+            to={`/roles/${role.id}/edit`}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] bg-blue-600 text-white hover:bg-blue-700 shadow h-11 px-4 py-2"
+          >
+            Edit Role
+          </Link>
         </div>
       </div>
 

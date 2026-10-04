@@ -1,90 +1,22 @@
-import { type Role, rolesApi } from "@/api/roles";
-import { unitsApi } from "@/api/units";
-import { usersApi } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { type UpdateUserFormValues, updateUserSchema } from "@/schemas/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as React from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
+import { useEditUser } from "@/hooks/useEditUser";
+import { Link } from "react-router-dom";
 
 export function EditUserPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const { data: user, isLoading: isUserLoading } = useQuery({
-    queryKey: ["user", id],
-    queryFn: () => usersApi.getUserById(id || ""),
-    enabled: Boolean(id),
-  });
-
-  const { data: unitsResponse } = useQuery({
-    queryKey: ["units"],
-    queryFn: () => unitsApi.getUnits(),
-  });
-  const units = unitsResponse?.units ?? [];
-
-  const { data: rolesData } = useQuery<Role[]>({
-    queryKey: ["roles"],
-    queryFn: () => rolesApi.getRoles(),
-  });
-
   const {
+    id,
+    isUserLoading,
+    units,
+    roles,
     register,
-    control,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UpdateUserFormValues>({
-    resolver: zodResolver(updateUserSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      unit_role_assignments: [],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "unit_role_assignments",
-  });
-
-  React.useEffect(() => {
-    if (user) {
-      reset({
-        name: user.name,
-        email: user.email,
-        unit_role_assignments:
-          user.unit_role_assignments?.map((a) => ({
-            unit_id: a.unit_id,
-            role_id: a.role_id,
-          })) || [],
-      });
-    }
-  }, [user, reset]);
-
-  const mutation = useMutation({
-    mutationFn: (data: UpdateUserFormValues) => usersApi.updateUser(id || "", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.invalidateQueries({ queryKey: ["user", id] });
-      toast.success("User berhasil diperbarui");
-      navigate(`/users/${id}`);
-    },
-    onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || "Gagal memperbarui user");
-    },
-  });
-
-  const onSubmit = (data: UpdateUserFormValues) => {
-    mutation.mutate(data);
-  };
+    errors,
+    fields,
+    append,
+    remove,
+  } = useEditUser();
 
   if (isUserLoading) {
     return <div className="p-8 text-center text-gray-500">Memuat data user...</div>;
@@ -97,13 +29,16 @@ export function EditUserPage() {
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Edit User</h1>
           <p className="text-sm text-gray-500">Perbarui informasi profil dan penugasan unit.</p>
         </div>
-        <Button asChild variant="outline" className="min-h-[44px]">
-          <Link to={`/users/${id}`}>Kembali</Link>
-        </Button>
+        <Link
+          to={`/users/${id}`}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-11 border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+        >
+          Kembali
+        </Link>
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit}
         className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-200"
       >
         <div className="space-y-4">
@@ -160,13 +95,19 @@ export function EditUserPage() {
                     {...register(`unit_role_assignments.${index}.unit_id` as const)}
                   >
                     <option value="">Pilih Unit</option>
-                    {units.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name}
+                    {units.map((unit) => (
+                      <option key={unit.id} value={unit.id}>
+                        {unit.name}
                       </option>
                     ))}
                   </Select>
+                  {errors.unit_role_assignments?.[index]?.unit_id && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errors.unit_role_assignments[index]?.unit_id?.message}
+                    </p>
+                  )}
                 </div>
+
                 <div className="flex-1">
                   <label
                     htmlFor={`edit-role-${index}`}
@@ -179,33 +120,43 @@ export function EditUserPage() {
                     {...register(`unit_role_assignments.${index}.role_id` as const)}
                   >
                     <option value="">Pilih Role</option>
-                    {rolesData?.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
                       </option>
                     ))}
                   </Select>
+                  {errors.unit_role_assignments?.[index]?.role_id && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errors.unit_role_assignments[index]?.role_id?.message}
+                    </p>
+                  )}
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => remove(index)}
-                  className="min-h-[40px] text-red-600 hover:text-red-700"
-                >
-                  Hapus
-                </Button>
+
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => remove(index)}
+                  >
+                    Hapus
+                  </Button>
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200">
-          <Button type="button" variant="outline" onClick={() => navigate(`/users/${id}`)}>
+        <div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
+          <Link
+            to={`/users/${id}`}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-11 border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+          >
             Batal
-          </Button>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
-          </Button>
+          </Link>
+          <Button type="submit">Simpan Perubahan</Button>
         </div>
       </form>
     </div>

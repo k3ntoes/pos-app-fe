@@ -1,100 +1,36 @@
-# 01 — Arsitektur Frontend
+# 01 — Frontend Architecture & Client Configuration (SSOT)
 
-## Strategi Umum
-Admin web dibangun sebagai aplikasi React yang menerapkan pola terstruktur, bukan kumpulan komponen acak. Tujuannya:
-- mudah dikembangkan,
-- mudah diuji,
-- konsisten dengan API dan aturan backend,
-- menghindari pengulangan logika di banyak tempat.
-
-Frontend tidak boleh menjadi salinan API atau meniru pola domain backend secara harfiah. Frontend punya tanggung jawabnya sendiri: pengalaman pengguna, tampilan, aksesibilitas, dan koordinasi request klien. Rujukan lengkap terdapat pada [Dokumen 00 — Ikhtisar & Orientasi](00-frontend-overview.md).
-
-## Pembagian Lapisan & Integrasi Stack Konkret
-Frontend dipisah secara konseptual dan dihubungkan secara konkret dengan stack pilihan:
-
-1. **Transport / API Layer & Auth**
-   - HTTP client wrapper mengelola `credentials: 'include'` untuk session cookies.
-   - Otomatis melakukan injeksi CSRF token header (`X-CSRF-Token` atau setara) pada mutasi (`POST`, `PUT`, `PATCH`, `DELETE`).
-   - Penanganan error respons terpusat: HTTP `401 Unauthorized` memicu pembersihan sesi dan *redirect* otomatis ke halaman login; HTTP `403 Forbidden` menampilkan alert inline / toast peringatan tanpa logout paksa.
-   - Sesuai dengan spesifikasi pada [Dokumen 05 — Kontrak API](05-api-contract.md) dan [Dokumen 12 — Spesifikasi Stack Definitif](12-stack-specification.md).
-
-2. **Server State & Query Coordination Layer**
-   - **TanStack Query** sebagai tulang punggung server state, caching, refetching, dan invalidasi mutasi.
-   - Konvensi query keys terstruktur per feature (misal: `['users', { unitId, page, filters }]`) agar invalidasi cache tepat sasaran setelah operasi mutasi.
-   - Koordinasi loading, error, dan empty state secara konsisten di seluruh modul.
-
-3. **Form & Validation Layer (Bridging Arsitektur)**
-   - Kombinasi **React Hook Form + Zod**.
-   - **Arsitektur Bridging**: Validasi klien dijalankan terlebih dahulu menggunakan schema Zod sebelum submit payload ke backend. Jika backend merespons dengan HTTP 422 `ValidationError` (memuat detail error per field), interceptor / mutation error handler memetakannya secara otomatis langsung ke `form.setError(field, { message })` agar pesan kesalahan tampil presisi di bawah input form masing-masing.
-
-4. **Data Presentation Layer**
-   - **TanStack Table** digunakan untuk list data yang memerlukan server-side pagination, sorting, dan filtering.
-   - Menyediakan abstraksi tabel yang konsisten di seluruh modul seperti manajemen pengguna ([Dokumen 02 — Modul Pengguna, Peran, & Unit](02-features-users-roles-units.md)) dan audit log ([Dokumen 03 — Modul Audit Log](03-audit-feature.md)).
-
-5. **UI Component & Design Foundation**
-   - **Tailwind CSS** + Headless primitives (mengikuti pola shadcn/radix) untuk komponen interaktif yang aksesibel.
-   - Desain token, warna, spacing, radius, dan tipografi dikelola terpusat sesuai [Dokumen 08 — Panduan Tailwind CSS](08-tailwind-guidance.md).
-
-Logika bisnis tingkat tinggi tetap berada di backend. Frontend memuat aturan presentasi, pengelompokan, kontrol visibilitas berdasarkan permission, dan penanganan error yang ramah pengguna.
-
-## Alur Data Ujung-ke-Ujung (End-to-End Data Flow)
-Diagram Mermaid berikut menggambarkan alur data dari interaksi pengguna hingga komunikasi backend:
-
-```mermaid
-graph TD
-    User["Pengguna (Admin Web)"] -->|"Interaksi UI"| UI["React + Tailwind UI (Shadcn Primitives)"]
-    UI -->|"Submit Form / Trigger"| RHF["React Hook Form + Zod Validation"]
-    RHF -->|"Validasi Klien Lolos"| TQuery["TanStack Query (Mutations / Queries)"]
-    UI -->|"Table Pagination / Sorting"| TTable["TanStack Table"]
-    TTable -->|"Query Params"| TQuery
-    TQuery -->|"HTTP Request + Cookie & CSRF Header"| Transport["HTTP Client Wrapper & CSRF Injector"]
-    Transport -->|"REST API Call (401/403/422/200)"| Backend["Backend API (FastAPI)"]
-    Backend -->|"ValidationError (422)"| Transport
-    Transport -->|"Mapped to form.setError"| RHF
-    Backend -->|"Success Response / Data"| Transport
-    Transport -->|"Cache Update / Invalidation"| TQuery
-    TQuery -->|"Updated Data State"| UI
-```
-
-## Server State vs Client State
-Pola yang disarankan:
-- **Server state**: data yang punya sumber kebenaran di backend, seperti daftar user, role, unit, audit log. Ini dikelola oleh TanStack Query.
-- **Client state**: hal yang bersifat sementara dan lokal, seperti form draft, pilihan filter sementara, unit yang sedang dipilih, status toast, state loading lokal yang tidak perlu sync ke server.
-
-Jangan pakai TanStack Query untuk sembarangan state yang tidak punya sumber kebenaran; gunakan state lokal, context, atau penyimpanan ringan sesuai kebutuhan.
-
-## Layout dan Navigation
-Admin web sebaiknya punya:
-- header atau area utama yang stabil
-- navigasi utama (sidebar atau top nav)
-- area konten per halaman
-
-Navigasi harus:
-- mengikuti bounded context yang ada di backend
-- dikendalikan oleh permission/effective access, bukan teks role yang dipaksa
-- mampu merespons perubahan sesi atau konteks tanpa perilaku aneh
-
-## Unit Context
-Karena assignment user bisa scoped per unit dan bisa global, aplikasi web harus menyimpan unit context saat ini dan menggunakannya untuk:
-- membatasi layar list yang terikat unit
-- menentukan scope pada aksi yang memerlukan unit
-- menampilkan konteks yang terlihat oleh user
-
-Unit switcher di header adalah elemen yang wajib ada, bukan opsional. Rincian modul tersedia di [Dokumen 02 — Modul Pengguna, Peran, & Unit](02-features-users-roles-units.md).
-
-## Error Handling Strategy
-Strategi penanganan error, pemetaan kode error standar, penanganan HTTP 401/403, serta korelasi `request_id` sepenuhnya merujuk pada Single Source of Truth (SSOT) di [Dokumen 05 — Kontrak API](05-api-contract.md) dan [Dokumen 04 — Praktik Terbaik UI/UX](04-uiux-best-practices.md).
-
-## Struktur Folder Konseptual
-Pemisahan lapisan arsitektur frontend diorganisasikan secara modular berbasis feature. Rincian pohon struktur folder, hierarki direktori, dan konvensi file sepenuhnya dimiliki dan dikelola oleh [Dokumen 10 — Struktur Folder Frontend](10-frontend-folder-structure.md) sebagai satu-satunya Single Source of Truth (SSOT) struktur folder frontend.
-
-
-## Apa yang Tidak Boleh Dilakukan
-- Menyembunyikan fitur dan menganggap itu cukup untuk keamanan ([Dokumen 09 — Aturan & Konvensi Kode](09-coding-rules.md)).
-- Membangun semua UI sebelum struktur navigasi dan error mapper jadi.
-- Memperkirakan semua layar state tanpa pagination, loading, dan empty state.
-- Mencampur banyak library visual tanpa menetapkan fondasi desain ([Dokumen 11 — Tooling & Biome](11-tooling-and-biome.md)).
-- Mengabaikan CSRF atau error shape standar.
+> [!NOTE]
+> Panduan teknis arsitektur frontend, konfigurasi API client, strategi caching TanStack Query, dan penanganan session guard serta `must_change_password` (ADR-0002).
 
 ---
-⬅ **Sebelumnya:** [Dokumen 00 — Ikhtisar & Orientasi](00-frontend-overview.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 02 — Modul Pengguna, Peran, & Unit](02-features-users-roles-units.md)
+
+## 1. Konfigurasi API Client (Axios / Fetch)
+Klien HTTP frontend wajib dikonfigurasi dengan parameter keamanan berikut:
+- **Credentials**: `withCredentials: true` (jika menggunakan Axios) atau `credentials: 'include'` (jika menggunakan `fetch`) agar HttpOnly cookies (`pos_session`, `pos_csrf`) dikirim secara otomatis pada setiap request Web Admin.
+- **CSRF Header**: Interceptor otomatis membaca nilai cookie `pos_csrf` (atau memori state) dan menyertakannya pada header **`X-CSRF-Token`** untuk method `POST`, `PUT`, `PATCH`, dan `DELETE`.
+- **Request ID**: Membaca atau mengirimkan header **`X-Request-ID`** untuk ketertelusuran log bersama backend.
+- **Global Error Interceptor**:
+  - **401 Unauthorized**: Sesi habis atau tidak sah; bersihkan state lokal dan arahkan pengguna ke halaman login (`/login`).
+  - **403 Forbidden**: Akses ditolak; tampilkan notifikasi inline (toast/alert) tanpa memaksa logout.
+  - **429 Too Many Requests**: Batasan rate limit tercapai; tampilkan pesan peringatan cooldown.
+  - **422 Unprocessable Entity**: Validasi gagal; ekstrak field `details` untuk dipetakan ke form errors.
+
+---
+
+## 2. Session Guard & `must_change_password` (ADR-0002)
+- Setiap kali user melakukan login atau mengambil data sesi aktif (`GET /auth/me`), frontend wajib memeriksa properti **`must_change_password`**.
+- Jika `must_change_password === true`, router/guard frontend wajib mengarahkan user atau menampilkan **Modal Wajib Ganti Password** secara blocking. User tidak diizinkan menavigasi modul lain sebelum berhasil mengganti password melalui endpoint `/auth/change-password` atau `/auth/mobile/change-password`.
+
+---
+
+## 3. Strategi Caching & Query Key Convention (TanStack Query)
+Frontend menggunakan TanStack Query dengan konvensi Query Key yang konsisten agar invalidasi cache akurat:
+- `['auth', 'me']`: Data profil user aktif.
+- `['users']` & `['users', userId]`: Daftar user dan detail user tunggal.
+- `['roles']` & `['roles', roleId]`: Daftar role dan detail role.
+- `['units']` & `['units', unitId]`: Daftar unit dan detail unit.
+- `['permissions']`: Daftar seluruh permission sistem.
+
+---
+⬅ **Sebelumnya:** [Dokumen 00 — Ikhtisar Frontend](00-frontend-overview.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 02 — Fitur Pengguna, Peran, & Unit](02-features-users-roles-units.md)

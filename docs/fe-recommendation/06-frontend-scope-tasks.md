@@ -1,166 +1,47 @@
-# 06 — Frontend Scope dan Tasks
+# 06 — Frontend Scope & Implementation Tasks (SSOT)
 
-Dokumen ini memecah cakupan frontend ke dalam ruang lingkup yang bisa ditangani secara berurutan. Ini bukan bug tracker; ini panduan ruang lingkup yang bisa dikonversi ke task oleh tim, dengan rujukan langsung ke dokumen spesifikasi seperti [Dokumen 11 — Tooling & Biome](11-tooling-and-biome.md), [Dokumen 08 — Tailwind Guidance](08-tailwind-guidance.md), [Dokumen 01 — Arsitektur Frontend](01-frontend-architecture.md), dan [Dokumen 05 — Kontrak API Backend](05-api-contract.md).
-
-Aturan umum:
-- setiap fitur harus punya list, detail, dan form bila relevan
-- semua list wajib pagination dan state konsisten
-- semua mutasi wajib punya feedback dan invalidation
-- izin dan status harus terlihat, bukan tersembunyi
+> [!NOTE]
+> Rincian tugas (task breakdown) dan ruang lingkup implementasi frontend yang selaras dengan seluruh kapabilitas backend, kontrak API, dan ADR proyek.
 
 ---
 
-## 0. Pre-FE setup
-Deliverables awal sebelum masuk fitur (didukung oleh panduan di [Dokumen 11 — Tooling & Biome](11-tooling-and-biome.md) dan [Dokumen 08 — Tailwind Guidance](08-tailwind-guidance.md)):
-- project Vite + React siap
-- TypeScript dan Tailwind terkonfigurasi (styling foundation sesuai [Dokumen 08 — Tailwind Guidance](08-tailwind-guidance.md))
-- design token dasar ada: warna utama, netral, semantik, spacing, radius, typografi
-- query client, router, dan toast/notification terinisialisasi
-- error mapper dasar ada
-- CSRF helper ada untuk web login
+## 1. Ruang Lingkup & Task Breakdown
 
-Konteks FE tidak boleh dimulai dari nol di tengah fitur.
+### A. Core Foundation & API Client
+- [ ] **API Client Setup**: Konfigurasi Axios/Fetch dengan `withCredentials: true` (`credentials: 'include'`).
+- [ ] **CSRF & Request ID Interceptors**: Otomatis menyuntikkan header `X-CSRF-Token` (dari cookie `pos_csrf`) untuk request mutasi (`POST`, `PUT`, `PATCH`, `DELETE`) dan header `X-Request-ID`.
+- [ ] **Unified Error Handling**: Interceptor global untuk memetakan `ErrorResponse` backend (`type`, `code`, `message`, `request_id`, `details`) ke UI toast atau form validation errors.
 
----
+### B. Authentication & Session Guard
+- [ ] **Web Login**: Form login (`POST /auth/login`), penyimpanan token CSRF di memori state, handling cookie `pos_session`.
+- [ ] **Mobile Login (Opsional/Client)**: Support Bearer Token (`POST /auth/mobile/login`, `/refresh`).
+- [ ] **Session Validation**: Query `GET /auth/me` saat inisialisasi aplikasi.
+- [ ] **Blocking Change Password Flow**: Pengecekan flag **`must_change_password`** (ADR-0002). Jika `true`, tampilkan modal ubah password blocking sebelum navigasi diizinkan.
+- [ ] **Logout**: Pemanggilan `POST /auth/logout` dan pembersihan state lokal.
 
-## 1. Auth shell
-Tujuan: aplikasi bisa login, tahu siapa user, dan siap navigasi. (Sesuai arsitektur auth dan transport pada [Dokumen 01 — Arsitektur Frontend](01-frontend-architecture.md) serta [Dokumen 05 — Kontrak API Backend](05-api-contract.md)).
+### C. Users Feature (`/api/v1/users`)
+- [ ] **User List Table**: Integrasi `GET /api/v1/users` dengan paginasi (`page`, `page_size`, `meta.total_pages`) dan badge status (`ACTIVE`, `INACTIVE`, `SUSPENDED`).
+- [ ] **User Creation Modal**: Form `CreateUserRequest` (`username`, `email`, `full_name`). Menampilkan dialog sukses berisi **`temporary_password`** dengan tombol *Copy to Clipboard*.
+- [ ] **User Status Management**: Aksi `PATCH /api/v1/users/{id}/status`.
+- [ ] **Password Reset Modal**: Aksi `POST /api/v1/users/{id}/reset-password` dan dialog temporary password baru.
+- [ ] **Self Profile Update**: Form `PATCH /api/v1/users/me` untuk update profil mandiri.
+- [ ] **Admin Profile Update**: Form `PATCH /api/v1/users/{id}` untuk update oleh admin.
 
-Deliverables:
-- halaman login web
-- CSRF handling terintegrasi
-- setelah login, fetch identitas dan konteks awal
-- menyimpan (secara aman dan sesuai kebijakan) konteks sesi yang sah
-- logout masuk akal dan membersihkan state lokal
-- 401 ditangani: arahkan/minta login kembali
-- 403 tidak dianggap login baru
+### D. Roles & Permissions Feature (`/api/v1/roles`, `/api/v1/permissions`)
+- [ ] **Role List & Detail**: Integrasi `GET /api/v1/roles` dan `GET /api/v1/roles/{role_id}`.
+- [ ] **Role CRUD**: Form pembuatan (`CreateRoleRequest`) dan penyuntingan (`UpdateRoleRequest`).
+- [ ] **Permission Matrix Editor**: Integrasi `GET /api/v1/permissions` dan `PUT /api/v1/roles/{role_id}/permissions` dengan checklist interaktif.
+- [ ] **System Role Badge**: Menandai role dengan `is_system=true` dan menerapkan pembatasan akses sesuai ADR-0003.
 
-Screen yang masuk:
-- Login
-- Identity setelah login
-- Logout flow
+### E. Units Feature (`/api/v1/units`)
+- [ ] **Unit List & Search**: Integrasi `GET /api/v1/units` dengan filter pencarian dan status aktif.
+- [ ] **Unit CRUD**: Form pembuatan (`CreateUnitRequest` dengan validasi pattern `code`) dan penyuntingan (`UpdateUnitRequest`).
+- [ ] **Unit Deletion**: Aksi penghapusan unit (`DELETE /api/v1/units/{id}`).
 
-Fitur ini adalah fondasi untuk all subsequent screens.
-
----
-
-## 2. Navigasi dan shell admin
-Tujuan: admin web terasa seperti aplikasi utuh (menggunakan struktur komponen dari [Dokumen 10 — Struktur Folder & Komponen Frontend](10-frontend-folder-structure.md)).
-
-Deliverables:
-- header stabil dengan unit switcher
-- navigasi utama: Users, Roles
-- navigasi dikendalikan permission
-- layout konten yang konsisten di semua halaman
-
-> **Catatan:** Navigasi untuk Units dan Audit Log akan ditambahkan saat backend endpoint masing-masing tersedia (`/api/v1/units` dan `/api/v1/audit`). Jangan tambahkan menu yang belum punya endpoint backend.
-
-Prinsip:
-- unit switcher wajib ada
-- menu tidak muncul sembarangan
-- halaman dalam punya konteks dan cara kembali
+### F. User Role Assignments (`/api/v1/users/{user_id}/roles`)
+- [ ] **Assignments View**: Tabel daftar role dan unit yang diemban oleh user (`GET /api/v1/users/{user_id}/roles`).
+- [ ] **Assign Role Modal**: Form penugasan role (`AssignRoleRequest`) dengan selector role dan unit picker (mendukung unit UUID, `"GLOBAL"`, atau `null`).
+- [ ] **Unassign Role Action**: Aksi penghapusan penugasan role (`DELETE /api/v1/users/{user_id}/roles/{assignment_id}`).
 
 ---
-
-## 3. Users feature
-Deliverables (mengacu pada modul pengguna dan manajemen akses di [Dokumen 02 — Modul Users, Roles, & Units](02-features-users-roles-units.md)):
-- user list dengan pagination, search/filter bila server support
-- user detail
-- form create/edit user
-- status user: ACTIVE / SUSPENDED / DEACTIVATED
-- aksi yang diizinkan: suspend, reactivate, deactivate, assignment bila relevan
-
-Screen ini mengajarkan pattern list/detail/form.
-
----
-
-## 4. Roles feature
-Deliverables (mengacu pada [Dokumen 02 — Modul Users, Roles, & Units](02-features-users-roles-units.md)):
-- role list
-- role detail
-- role permission editor bila diizinkan
-- tanda sistem vs kustom
-- aturan hapus role kustom hanya bila tidak ada assignment
-
-Screen ini mengajarkan relationship-oriented editing.
-
----
-
-## 5. Units feature
-Deliverables (mengacu pada [Dokumen 02 — Modul Users, Roles, & Units](02-features-users-roles-units.md)):
-- unit list
-- unit context switcher di header
-- tindakan unit bila diizinkan
-
-> [!WARNING]
-> **Backend endpoint untuk Units belum tersedia.** Endpoint `/api/v1/units` belum diimplementasikan di backend (per Oktober 2026). FE tidak bisa membangun fitur ini sampai endpoint tersebut tersedia. Lihat tabel Backend Readiness di bawah.
-
-Unit adalah batas data; layar lain perlu konteks ini.
-
----
-
-## 6. Audit feature
-Deliverables (mengacu pada detail fitur di [Dokumen 03 — Fitur Audit Log](03-audit-feature.md)):
-- audit list terpaginasikan
-- filter: rentang waktu, aktor, tipe aksi, unit, pencarian sederhana bila support
-- urutan penelusuran kronologis
-- detail peristiwa bila relevan
-- izin baca audit dihormati
-
-> [!WARNING]
-> **Backend endpoint untuk Audit belum tersedia.** Endpoint `/api/v1/audit` belum diimplementasikan di backend (per Oktober 2026). Domain model dan Redis pipeline telah ada di backend, namun API endpoint publik belum dibuat. FE tidak bisa membangun fitur ini sampai endpoint tersebut tersedia. Lihat tabel Backend Readiness di bawah.
-
-Audit dibangun cukup awal karena ini concern utama operasional dan keamanan.
-
----
-
-## 7. Pencoretan pola umum
-Setelah fitur pertama jadi, FE wajib mencoreng pola umum ini (mempertimbangkan [Dokumen 04 — UI/UX Best Practices](04-uiux-best-practices.md) dan [Dokumen 08 — Tailwind Guidance](08-tailwind-guidance.md)):
-- query key yang konsisten
-- error mapper yang sama di semua layar
-- table abstraction yang dipakai berulang
-- form abstraction dasar
-- loading/empty/error state yang mirip di semua list
-- Toast/feedback yang sama di semua mutasi
-
-Tanpa ini, setiap fitur terlihat berdiri sendiri dan susah dipelihara.
-
----
-
-## Status Backend Readiness
-
-Tabel ini mencerminkan status implementasi backend per Oktober 2026. FE hanya boleh membangun fitur yang endpoint-nya sudah ✅ tersedia.
-
-| Fitur FE | Endpoint Backend | Status |
-|---|---|---|
-| Auth login/logout | `POST /auth/login`, `POST /auth/logout` | ✅ Tersedia |
-| Identity (me) | `GET /auth/me` | ✅ Tersedia |
-| Users CRUD | `GET/POST /api/v1/users` | ✅ Tersedia |
-| User status update | `PATCH /api/v1/users/{id}/status` | ✅ Tersedia |
-| User role assignment | `GET/POST/DELETE /api/v1/users/{id}/roles` | ✅ Tersedia |
-| Roles CRUD | `GET/POST/PUT/DELETE /api/v1/roles` | ✅ Tersedia |
-| Permission editor | `PUT /api/v1/roles/{id}/permissions` | ✅ Tersedia |
-| Permissions list | `GET /api/v1/permissions` | ✅ Tersedia |
-| Units CRUD | `/api/v1/units` | ❌ Belum ada |
-| Audit Log list | `/api/v1/audit` | ❌ Belum ada |
-
----
-
-## 8. Yang ditunda
-Tidak masuk ruang lingkup awal (seperti dijelaskan pada [Dokumen 00 — Frontend Overview](00-frontend-overview.md)):
-- Sales / Cashier
-- Inventory
-- Purchase Order
-- Finance screens lanjutan
-- Units (backend endpoint `/api/v1/units` belum tersedia)
-- Audit Log (backend endpoint belum tersedia; domain model dan Redis pipeline ada)
-
-Alasannya sama seperti di dokumen overview: domain belum merupakan cakupan backend awal.
-
----
-
-## Ringkasan ruang lingkup
-Mulai dari setup ([Dokumen 11 — Tooling & Biome](11-tooling-and-biome.md)), lalu auth shell ([Dokumen 01 — Arsitektur Frontend](01-frontend-architecture.md) & [Dokumen 05 — Kontrak API Backend](05-api-contract.md)), lalu navigasi, lalu Users/Roles/Units ([Dokumen 02 — Modul Users, Roles, & Units](02-features-users-roles-units.md)) dan Audit ([Dokumen 03 — Fitur Audit Log](03-audit-feature.md)). Setiap fitur wajib punya list/detail/form bila relevan, pagination, feedback, dan visibility berbasis izin. Jangan mulai fitur baru sebelum pola umum tercoreng.
-
----
-⬅ **Sebelumnya:** [Dokumen 05 — Kontrak API Backend](05-api-contract.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 07 — Bentuk Contoh Respon API](07-example-response-shapes.md)
+⬅ **Sebelumnya:** [Dokumen 05 — Kontrak API](05-api-contract.md) | 📑 **[Indeks Dokumen](README.md)** | ➡ **Selanjutnya:** [Dokumen 07 — Contoh Bentuk Respons](07-example-response-shapes.md)

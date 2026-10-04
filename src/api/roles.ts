@@ -1,14 +1,19 @@
-import type { CreateRolePayload, RoleDetail, RoleListItem, UpdateRolePayload } from "@/types/role";
+import type {
+  CreateRolePayload,
+  GetRolesParams,
+  RoleDetail,
+  RoleListItem,
+  UpdateRolePayload,
+} from "@/types/role";
 import { apiClient } from "./client";
 
 export const rolesApi = {
-  getRoles: async (params?: { page?: number; page_size?: number; search?: string }): Promise<
-    RoleListItem[]
-  > => {
+  getRoles: async (params?: GetRolesParams): Promise<RoleListItem[]> => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", params.page.toString());
     if (params?.page_size) searchParams.set("page_size", params.page_size.toString());
     if (params?.search) searchParams.set("search", params.search);
+    if (params?.is_system !== undefined) searchParams.set("is_system", params.is_system.toString());
 
     const query = searchParams.toString();
     const url = `/api/v1/roles${query ? `?${query}` : ""}`;

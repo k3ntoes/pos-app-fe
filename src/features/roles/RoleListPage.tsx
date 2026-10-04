@@ -1,4 +1,3 @@
-import { rolesApi } from "@/api/roles";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,47 +15,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { RoleListItem } from "@/types/role";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { useRoleList } from "@/hooks/useRoleList";
+import { Link } from "react-router-dom";
 import { DeleteRoleModal } from "./DeleteRoleModal";
 
 export function RoleListPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const [search, setSearch] = React.useState("");
-  const [deleteModalRole, setDeleteModalRole] = React.useState<RoleListItem | null>(null);
-
-  const { data: rolesData, isLoading } = useQuery({
-    queryKey: ["roles"],
-    queryFn: () => rolesApi.getRoles(),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => rolesApi.deleteRole(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("Role berhasil dihapus");
-      setDeleteModalRole(null);
-    },
-    onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || "Gagal menghapus role");
-    },
-  });
-
-  const filteredRoles = React.useMemo(() => {
-    if (!rolesData) return [];
-    if (!search.trim()) return rolesData;
-    const term = search.toLowerCase();
-    return rolesData.filter(
-      (role) =>
-        role.name.toLowerCase().includes(term) || role.description?.toLowerCase().includes(term),
-    );
-  }, [rolesData, search]);
+  const {
+    search,
+    deleteModalRole,
+    isLoading,
+    filteredRoles,
+    deleteMutation,
+    handleSearch,
+    handleDelete,
+    handleOpenDeleteModal,
+    handleCloseDeleteModal,
+  } = useRoleList();
 
   return (
     <div className="space-y-6">
@@ -67,9 +41,12 @@ export function RoleListPage() {
             Kelola role dan hak akses (permissions) granular untuk pengguna sistem POS.
           </p>
         </div>
-        <Button asChild className="min-h-[44px]">
-          <Link to="/roles/new">+ Tambah Role</Link>
-        </Button>
+        <Link
+          to="/roles/new"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] bg-blue-600 text-white hover:bg-blue-700 shadow h-11 px-4 py-2 min-h-11"
+        >
+          + Tambah Role
+        </Link>
       </div>
 
       {/* Search Bar */}
@@ -77,7 +54,7 @@ export function RoleListPage() {
         <Input
           placeholder="Cari berdasarkan nama atau deskripsi role..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="max-w-md"
         />
       </div>
@@ -136,20 +113,22 @@ export function RoleListPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          Aksi
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button variant="ghost" size="sm">
+                            Aksi
+                          </Button>
+                        }
+                      />
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/roles/${role.id}`)}>
+                        <DropdownMenuItem render={<Link to={`/roles/${role.id}`} />}>
                           Detail
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate(`/roles/${role.id}/edit`)}>
+                        <DropdownMenuItem render={<Link to={`/roles/${role.id}/edit`} />}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => setDeleteModalRole(role)}
+                          onClick={() => handleOpenDeleteModal(role)}
                           disabled={role.is_system}
                           className={
                             role.is_system
@@ -172,8 +151,8 @@ export function RoleListPage() {
       <DeleteRoleModal
         role={deleteModalRole}
         isOpen={Boolean(deleteModalRole)}
-        onClose={() => setDeleteModalRole(null)}
-        onConfirm={(id) => deleteMutation.mutate(id)}
+        onClose={handleCloseDeleteModal}
+        onConfirm={(id) => handleDelete(id)}
         isDeleting={deleteMutation.isPending}
       />
     </div>

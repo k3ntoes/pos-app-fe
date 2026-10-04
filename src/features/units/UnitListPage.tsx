@@ -1,4 +1,3 @@
-import { unitsApi } from "@/api/units";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,95 +8,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import type { CreateUnitInput, UpdateUnitInput } from "@/schemas/unit";
-import type { Unit } from "@/types/unit";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useUnitList } from "@/hooks/useUnitList";
 import { DeleteUnitModal } from "./DeleteUnitModal";
 import { UnitFormModal } from "./UnitFormModal";
 
 export function UnitListPage() {
-  const queryClient = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
-
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [unitToDelete, setUnitToDelete] = useState<Unit | null>(null);
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["units", search, statusFilter],
-    queryFn: () =>
-      unitsApi.getUnits({
-        search: search || undefined,
-        is_active:
-          statusFilter === "active" ? true : statusFilter === "inactive" ? false : undefined,
-      }),
-  });
-
-  const units = data?.units || [];
-  const totalUnits = data?.total || units.length;
-  const activeUnits = units.filter((u) => u.is_active).length;
-  const inactiveUnits = units.filter((u) => !u.is_active).length;
-
-  const createMutation = useMutation({
-    mutationFn: (payload: CreateUnitInput) => unitsApi.createUnit(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsFormOpen(false);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateUnitInput }) =>
-      unitsApi.updateUnit(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsFormOpen(false);
-      setSelectedUnit(null);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => unitsApi.deleteUnit(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsDeleteOpen(false);
-      setUnitToDelete(null);
-    },
-  });
-
-  const toggleStatusMutation = useMutation({
-    mutationFn: (unit: Unit) => unitsApi.updateUnit(unit.id, { is_active: !unit.is_active }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-    },
-  });
-
-  const handleFormSubmit = (formData: CreateUnitInput | UpdateUnitInput) => {
-    if (selectedUnit) {
-      updateMutation.mutate({ id: selectedUnit.id, payload: formData as UpdateUnitInput });
-    } else {
-      createMutation.mutate(formData as CreateUnitInput);
-    }
-  };
-
-  const handleOpenCreate = () => {
-    setSelectedUnit(null);
-    setIsFormOpen(true);
-  };
-
-  const handleOpenEdit = (unit: Unit) => {
-    setSelectedUnit(unit);
-    setIsFormOpen(true);
-  };
-
-  const handleOpenDelete = (unit: Unit) => {
-    setUnitToDelete(unit);
-    setIsDeleteOpen(true);
-  };
+  const {
+    search,
+    statusFilter,
+    isFormOpen,
+    selectedUnit,
+    isDeleteOpen,
+    unitToDelete,
+    units,
+    totalUnits,
+    activeUnits,
+    inactiveUnits,
+    isLoading,
+    error,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    handleSearch,
+    handleFilter,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleOpenDelete,
+    handleCloseForm,
+    handleCloseDelete,
+    handleFormSubmit,
+    handleConfirmDelete,
+    handleToggleStatus,
+  } = useUnitList();
 
   return (
     <div className="space-y-6 p-6">
@@ -147,7 +89,7 @@ export function UnitListPage() {
           <Input
             placeholder="Cari unit atau kode..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -155,7 +97,7 @@ export function UnitListPage() {
             aria-label="Filter status"
             className="flex h-10 w-full sm:w-40 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => handleFilter(e.target.value)}
           >
             <option value="all">Semua Status</option>
             <option value="active">Aktif</option>
@@ -239,7 +181,7 @@ export function UnitListPage() {
                           <DropdownMenuItem onClick={() => handleOpenEdit(unit)}>
                             Edit Unit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toggleStatusMutation.mutate(unit)}>
+                          <DropdownMenuItem onClick={() => handleToggleStatus(unit)}>
                             {unit.is_active ? "Nonaktifkan" : "Aktifkan"}
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -261,18 +203,18 @@ export function UnitListPage() {
 
       <UnitFormModal
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={handleCloseForm}
         onSubmit={handleFormSubmit}
         unit={selectedUnit}
-        isLoading={createMutation.isPending || updateMutation.isPending}
+        isLoading={isCreating || isUpdating}
       />
 
       <DeleteUnitModal
         isOpen={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={() => unitToDelete && deleteMutation.mutate(unitToDelete.id)}
+        onClose={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
         unit={unitToDelete}
-        isLoading={deleteMutation.isPending}
+        isLoading={isDeleting}
       />
     </div>
   );

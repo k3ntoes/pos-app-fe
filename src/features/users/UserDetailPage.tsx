@@ -1,4 +1,3 @@
-import { usersApi } from "@/api/users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,22 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useUserDetail } from "@/hooks/useUserDetail";
+import { Link, useNavigate } from "react-router-dom";
 
 export function UserDetailPage() {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const {
-    data: user,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["user", id],
-    queryFn: () => usersApi.getUserById(id || ""),
-    enabled: Boolean(id),
-  });
+  const { user, isLoading, error } = useUserDetail();
 
   if (isLoading) {
     return <div className="p-8 text-center text-gray-500">Memuat detail user...</div>;
@@ -69,12 +58,18 @@ export function UserDetailPage() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button asChild variant="outline" className="min-h-[44px]">
-            <Link to="/users">Kembali</Link>
-          </Button>
-          <Button asChild className="min-h-[44px]">
-            <Link to={`/users/${user.id}/edit`}>Edit User</Link>
-          </Button>
+          <Link
+            to="/users"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2 min-h-11"
+          >
+            Kembali
+          </Link>
+          <Link
+            to={`/users/${user.id}/edit`}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] bg-blue-600 text-white hover:bg-blue-700 shadow h-11 px-4 py-2 min-h-11"
+          >
+            Edit User
+          </Link>
         </div>
       </div>
 

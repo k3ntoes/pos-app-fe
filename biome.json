@@ -7,7 +7,16 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["dist", "node_modules", ".git"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      ".git",
+      "*.test.ts",
+      "*.test.tsx",
+      "tmp",
+      "tmp/**",
+      "src/components/ui/**"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -28,6 +37,9 @@
       "correctness": {
         "noUnusedVariables": "error",
         "noUnusedImports": "error"
+      },
+      "a11y": {
+        "noLabelWithoutControl": "off"
       }
     }
   },

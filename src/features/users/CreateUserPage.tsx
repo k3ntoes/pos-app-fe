@@ -1,74 +1,24 @@
-import { type Role, rolesApi } from "@/api/roles";
-import { unitsApi } from "@/api/units";
-import { usersApi } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { type CreateUserFormValues, createUserSchema } from "@/schemas/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import * as React from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { useCreateUser } from "@/hooks/useCreateUser";
+import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 import { TemporaryPasswordModal } from "./TemporaryPasswordModal";
 
 export function CreateUserPage() {
-  const navigate = useNavigate();
-  const [createdUserData, setCreatedUserData] = React.useState<{
-    name: string;
-    temporary_password: string;
-  } | null>(null);
-
-  const { data: unitsResponse } = useQuery({
-    queryKey: ["units"],
-    queryFn: () => unitsApi.getUnits(),
-  });
-  const units = unitsResponse?.units ?? [];
-
-  const { data: rolesData } = useQuery<Role[]>({
-    queryKey: ["roles"],
-    queryFn: () => rolesApi.getRoles(),
-  });
-
   const {
     register,
-    control,
     handleSubmit,
-    formState: { errors },
-  } = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: {
-      full_name: "",
-      username: "",
-      email: "",
-      unit_role_assignments: [{ unit_id: "", role_id: "" }],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "unit_role_assignments",
-  });
-
-  const mutation = useMutation({
-    mutationFn: (data: CreateUserFormValues) => usersApi.createUser(data),
-    onSuccess: (response) => {
-      toast.success("User berhasil dibuat");
-      setCreatedUserData({
-        name: response.full_name || response.name || "",
-        temporary_password: response.temporary_password || "TEMP_PASS_123!",
-      });
-    },
-    onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || "Gagal membuat user baru");
-    },
-  });
-
-  const onSubmit = (data: CreateUserFormValues) => {
-    mutation.mutate(data);
-  };
+    errors,
+    fields,
+    append,
+    remove,
+    units,
+    roles,
+    createdUserData,
+    handleCloseModal,
+  } = useCreateUser();
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -79,13 +29,19 @@ export function CreateUserPage() {
             Buat akun user baru dan tentukan penugasan unit serta role.
           </p>
         </div>
-        <Button asChild variant="outline" className="min-h-[44px]">
-          <Link to="/users">Kembali</Link>
-        </Button>
+        <Link
+          to="/users"
+          className={cn(
+            "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2",
+            "min-h-11",
+          )}
+        >
+          Kembali
+        </Link>
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit}
         className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-200"
       >
         <div className="space-y-4">
@@ -164,13 +120,19 @@ export function CreateUserPage() {
                     {...register(`unit_role_assignments.${index}.unit_id` as const)}
                   >
                     <option value="">Pilih Unit</option>
-                    {units.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name}
+                    {units.map((unit) => (
+                      <option key={unit.id} value={unit.id}>
+                        {unit.name}
                       </option>
                     ))}
                   </Select>
+                  {errors.unit_role_assignments?.[index]?.unit_id && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errors.unit_role_assignments[index]?.unit_id?.message}
+                    </p>
+                  )}
                 </div>
+
                 <div className="flex-1">
                   <label
                     htmlFor={`role-${index}`}
@@ -183,19 +145,26 @@ export function CreateUserPage() {
                     {...register(`unit_role_assignments.${index}.role_id` as const)}
                   >
                     <option value="">Pilih Role</option>
-                    {rolesData?.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
                       </option>
                     ))}
                   </Select>
+                  {errors.unit_role_assignments?.[index]?.role_id && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errors.unit_role_assignments[index]?.role_id?.message}
+                    </p>
+                  )}
                 </div>
+
                 {fields.length > 1 && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     onClick={() => remove(index)}
-                    className="min-h-[40px] text-red-600 hover:text-red-700"
                   >
                     Hapus
                   </Button>
@@ -205,25 +174,23 @@ export function CreateUserPage() {
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200">
-          <Button type="button" variant="outline" onClick={() => navigate("/users")}>
+        <div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
+          <Link
+            to="/users"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+          >
             Batal
-          </Button>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Menyimpan..." : "Simpan & Buat User"}
-          </Button>
+          </Link>
+          <Button type="submit">Simpan User</Button>
         </div>
       </form>
 
       {createdUserData && (
         <TemporaryPasswordModal
-          open={!!createdUserData}
+          open={Boolean(createdUserData)}
           userName={createdUserData.name}
           temporaryPassword={createdUserData.temporary_password}
-          onClose={() => {
-            setCreatedUserData(null);
-            navigate("/users");
-          }}
+          onClose={handleCloseModal}
         />
       )}
     </div>

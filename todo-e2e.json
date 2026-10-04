@@ -1,0 +1,13 @@
+[
+  { "task": "Cek konfigurasi env dan base API serta status backend", "completed": true },
+  {
+    "task": "Pilih strategi E2E: backend test user live / mock API / sesuaikan auth",
+    "completed": true
+  },
+  {
+    "task": "Mock API login dan /auth/me serta /api/v1/roles dan /api/v1/users supaya test CRUD UI jalan",
+    "completed": true
+  },
+  { "task": "Jalankan ulang suite E2E roles-crud dan users-crud sampai lulus", "completed": false },
+  { "task": "Update audit.ndjson", "completed": false }
+]

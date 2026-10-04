@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/AppShell";
+import { AuditLogListPage } from "@/features/audit";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { ChangePasswordPage } from "@/features/auth/ChangePasswordPage";
 import { GuestRoute } from "@/features/auth/GuestRoute";
@@ -84,8 +85,12 @@ export const router = createBrowserRouter([
             element: <div className="p-4 text-xl font-bold">POS Cashier Page</div>,
           },
           {
+            path: "/audit-logs",
+            element: <AuditLogListPage />,
+          },
+          {
             path: "/audit",
-            element: <div className="p-4 text-xl font-bold">Audit Trail Page</div>,
+            element: <AuditLogListPage />,
           },
         ],
       },

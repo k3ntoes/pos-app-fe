@@ -9,41 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type LoginFormData, loginSchema } from "@/schemas/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import { useLoginForm } from "@/hooks/useLoginForm";
+import type React from "react";
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
+  const { form, isSubmitting, onSubmit } = useLoginForm();
   const {
     register,
-    handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      setIsSubmitting(true);
-      await login(data);
-      navigate("/", { replace: true });
-    } catch {
-      // error handled in AuthContext via toast
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  } = form;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-12">
@@ -54,7 +28,7 @@ export const LoginPage: React.FC = () => {
             Masukkan username dan password Anda untuk masuk
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>

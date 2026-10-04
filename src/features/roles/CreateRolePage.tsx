@@ -1,55 +1,14 @@
-import { rolesApi } from "@/api/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type CreateRoleFormValues, createRoleSchema } from "@/schemas/role";
+import { useCreateRole } from "@/hooks/useCreateRole";
 import type { PermissionType } from "@/types/permission";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Controller } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { PermissionMatrix } from "./PermissionMatrix";
 
 export function CreateRolePage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreateRoleFormValues>({
-    resolver: zodResolver(createRoleSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      permissions: [],
-    },
-  });
-
-  const mutation = useMutation({
-    mutationFn: (data: CreateRoleFormValues) =>
-      rolesApi.createRole({
-        name: data.name,
-        description: data.description,
-        permissions: data.permissions as PermissionType[],
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("Role baru berhasil dibuat");
-      navigate("/roles");
-    },
-    onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || "Gagal membuat role baru");
-    },
-  });
-
-  const onSubmit = (data: CreateRoleFormValues) => {
-    mutation.mutate(data);
-  };
+  const { register, control, handleSubmit, errors, mutation, onSubmit } = useCreateRole();
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -60,9 +19,12 @@ export function CreateRolePage() {
             Definisikan nama role dan pilih hak akses granular (permissions) untuk role tersebut.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link to="/roles">Kembali</Link>
-        </Button>
+        <Link
+          to="/roles"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+        >
+          Kembali
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -108,9 +70,12 @@ export function CreateRolePage() {
         </div>
 
         <div className="flex justify-end space-x-3">
-          <Button type="button" variant="outline" asChild>
-            <Link to="/roles">Batal</Link>
-          </Button>
+          <Link
+            to="/roles"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
+          >
+            Batal
+          </Link>
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Menyimpan..." : "Simpan Role"}
           </Button>

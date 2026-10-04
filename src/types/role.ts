@@ -40,3 +40,12 @@ export interface PermissionDomain {
     description?: string;
   }[];
 }
+
+export interface GetRolesParams {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  is_system?: boolean;
+}
+
+export type GetRolesQuery = GetRolesParams;

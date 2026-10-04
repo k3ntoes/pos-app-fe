@@ -9,42 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type ChangePasswordFormData, changePasswordSchema } from "@/schemas/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import { useChangePasswordForm } from "@/hooks/useChangePasswordForm";
+import type React from "react";
 
 export const ChangePasswordPage: React.FC = () => {
-  const { changePassword, mustChangePassword } = useAuth();
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
+  const { form, isSubmitting, mustChangePassword, onSubmit } = useChangePasswordForm();
   const {
     register,
-    handleSubmit,
     formState: { errors },
-  } = useForm<ChangePasswordFormData>({
-    resolver: zodResolver(changePasswordSchema),
-    defaultValues: {
-      current_password: "",
-      new_password: "",
-      confirm_password: "",
-    },
-  });
-
-  const onSubmit = async (data: ChangePasswordFormData) => {
-    try {
-      setIsSubmitting(true);
-      await changePassword(data);
-      navigate("/", { replace: true });
-    } catch {
-      // error handled in AuthContext via toast
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  } = form;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-12">
@@ -57,7 +30,7 @@ export const ChangePasswordPage: React.FC = () => {
               : "Masukkan password saat ini dan password baru Anda."}
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="current_password">Password Saat Ini</Label>

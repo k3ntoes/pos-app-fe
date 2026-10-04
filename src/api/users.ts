@@ -3,7 +3,9 @@ import type {
   CreateUserResponse,
   PaginatedUsersResponse,
   ResetPasswordResponse,
+  UpdateSelfProfilePayload,
   UpdateUserPayload,
+  User,
   UserDetail,
   UserFilterParams,
   UserListItem,
@@ -86,5 +88,10 @@ export const usersApi = {
 
   removeUserRole: async (userId: string, assignmentId: string): Promise<void> => {
     await apiClient.delete(`/api/v1/users/${userId}/roles/${assignmentId}`);
+  },
+
+  updateMe: async (payload: UpdateSelfProfilePayload): Promise<User> => {
+    const res = await apiClient.patch<{ data: User } | User>("/api/v1/users/me", payload);
+    return ("data" in res && res.data ? res.data : res) as User;
   },
 };

@@ -34,6 +34,13 @@ export interface UserDetail extends UserListItem {
   must_change_password: boolean;
 }
 
+export type User = UserDetail;
+
+export interface UpdateSelfProfilePayload {
+  full_name?: string;
+  email?: string;
+}
+
 export interface CreateUserPayload {
   username: string;
   full_name: string;

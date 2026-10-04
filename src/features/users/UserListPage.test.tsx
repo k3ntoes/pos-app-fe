@@ -29,6 +29,7 @@ describe("UserListPage", () => {
       data: [
         {
           id: "usr-1",
+          full_name: "Budi Santoso",
           name: "Budi Santoso",
           username: "budi",
           email: "budi@pos.com",
@@ -40,10 +41,16 @@ describe("UserListPage", () => {
           ],
         },
       ],
-      total: 1,
-      page: 1,
-      per_page: 10,
-      total_pages: 1,
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 1,
+        page: 1,
+        page_size: 10,
+        total_items: 1,
+        total_pages: 1,
+      },
     });
 
     vi.mocked(unitsApi.getUnits).mockResolvedValueOnce({
@@ -65,7 +72,8 @@ describe("UserListPage", () => {
       expect(screen.getByText("Budi Santoso")).toBeInTheDocument();
       expect(screen.getByText("@budi")).toBeInTheDocument();
       expect(screen.getByText("budi@pos.com")).toBeInTheDocument();
-      expect(screen.getByText("Cabang A (Kasir)")).toBeInTheDocument();
+      expect(screen.getAllByText("Cabang A").length).toBeGreaterThan(0);
+      expect(screen.getByText("Kasir")).toBeInTheDocument();
     });
   });
 });
