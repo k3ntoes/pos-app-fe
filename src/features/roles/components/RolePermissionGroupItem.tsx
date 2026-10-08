@@ -1,14 +1,7 @@
 import { Button } from "@/components/ui/button";
-import type { PermissionType } from "@/types/permission";
+import type { BackendPermissionGroup, PermissionType } from "@/types/permission";
 
-export interface PermissionGroupItemData {
-  domain?: string;
-  description: string;
-  permissions: {
-    description: string;
-    permission: string;
-  }[];
-}
+export type PermissionGroupItemData = BackendPermissionGroup;
 
 interface RolePermissionGroupItemProps {
   group: PermissionGroupItemData;
@@ -45,7 +38,7 @@ export function RolePermissionGroupItem({
 
   return (
     <div
-      key={group.domain || group.description}
+      key={group.description}
       className="bg-white rounded-lg border border-gray-200 p-4 shadow-xs space-y-3"
     >
       <div className="flex items-center justify-between border-b border-gray-100 pb-2">

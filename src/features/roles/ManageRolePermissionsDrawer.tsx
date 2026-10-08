@@ -184,7 +184,7 @@ export function ManageRolePermissionsDrawer({
         <div className="flex-1 overflow-y-auto space-y-4 pr-1 my-2">
           {groups.map((group) => (
             <RolePermissionGroupItem
-              key={group.domain || group.description}
+              key={group.description}
               group={group}
               draftPermissions={draftPermissions}
               searchQuery={searchQuery}

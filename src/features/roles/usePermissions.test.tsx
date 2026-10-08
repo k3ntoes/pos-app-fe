@@ -2,6 +2,7 @@ import { AuthContext } from "@/features/auth/AuthContext";
 import { UnitContext } from "@/features/units/UnitContext";
 import type { User } from "@/types/auth";
 import type { Unit, UserRoleAssignment } from "@/types/unit";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { usePermissions } from "./usePermissions";
@@ -49,32 +50,38 @@ describe("usePermissions", () => {
       updated_at: "",
     };
 
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
     render(
-      <AuthContext.Provider
-        value={{
-          user: mockUser,
-          isLoading: false,
-          isAuthenticated: true,
-          mustChangePassword: false,
-          login: vi.fn(),
-          logout: vi.fn(),
-          changePassword: vi.fn(),
-          refreshSession: vi.fn(),
-        }}
-      >
-        <UnitContext.Provider
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider
           value={{
-            units: [mockActiveUnit],
-            activeUnit: mockActiveUnit,
-            setActiveUnit: vi.fn(),
-            userAssignments: mockAssignments,
-            isLoadingUnits: false,
-            refreshUnits: vi.fn(),
+            user: mockUser,
+            isLoading: false,
+            isAuthenticated: true,
+            mustChangePassword: false,
+            login: vi.fn(),
+            logout: vi.fn(),
+            changePassword: vi.fn(),
+            refreshSession: vi.fn(),
           }}
         >
-          <TestConsumer />
-        </UnitContext.Provider>
-      </AuthContext.Provider>,
+          <UnitContext.Provider
+            value={{
+              units: [mockActiveUnit],
+              activeUnit: mockActiveUnit,
+              setActiveUnit: vi.fn(),
+              userAssignments: mockAssignments,
+              isLoadingUnits: false,
+              refreshUnits: vi.fn(),
+            }}
+          >
+            <TestConsumer />
+          </UnitContext.Provider>
+        </AuthContext.Provider>
+      </QueryClientProvider>,
     );
 
     expect(screen.getByTestId("can-users-read")).toHaveTextContent("yes");

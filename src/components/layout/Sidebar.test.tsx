@@ -1,6 +1,7 @@
 import { AuthContext } from "@/features/auth/AuthContext";
 import { UnitContext } from "@/features/units/UnitContext";
 import type { User } from "@/types/auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -19,34 +20,40 @@ describe("Sidebar", () => {
       created_at: "",
     };
 
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
     render(
-      <BrowserRouter>
-        <AuthContext.Provider
-          value={{
-            user: mockUser,
-            isLoading: false,
-            isAuthenticated: true,
-            mustChangePassword: false,
-            login: vi.fn(),
-            logout: vi.fn(),
-            changePassword: vi.fn(),
-            refreshSession: vi.fn(),
-          }}
-        >
-          <UnitContext.Provider
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthContext.Provider
             value={{
-              units: [],
-              activeUnit: null,
-              setActiveUnit: vi.fn(),
-              userAssignments: [],
-              isLoadingUnits: false,
-              refreshUnits: vi.fn(),
+              user: mockUser,
+              isLoading: false,
+              isAuthenticated: true,
+              mustChangePassword: false,
+              login: vi.fn(),
+              logout: vi.fn(),
+              changePassword: vi.fn(),
+              refreshSession: vi.fn(),
             }}
           >
-            <Sidebar />
-          </UnitContext.Provider>
-        </AuthContext.Provider>
-      </BrowserRouter>,
+            <UnitContext.Provider
+              value={{
+                units: [],
+                activeUnit: null,
+                setActiveUnit: vi.fn(),
+                userAssignments: [],
+                isLoadingUnits: false,
+                refreshUnits: vi.fn(),
+              }}
+            >
+              <Sidebar />
+            </UnitContext.Provider>
+          </AuthContext.Provider>
+        </BrowserRouter>
+      </QueryClientProvider>,
     );
 
     expect(screen.getByText("Dashboard")).toBeInTheDocument();

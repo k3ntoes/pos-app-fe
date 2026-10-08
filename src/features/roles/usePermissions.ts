@@ -8,17 +8,12 @@ export function usePermissions() {
   const { user } = useAuth();
   const { activeUnit, userAssignments } = useUnit();
 
-  let permissionsQuery = { data: [] as BackendPermissionGroup[], isLoading: false, error: null };
-  try {
-    permissionsQuery = useQuery({
-      queryKey: ["permissions"],
-      queryFn: () => permissionsApi.getPermissions(),
-      staleTime: 5 * 60 * 1000,
-      retry: false,
-    });
-  } catch {
-    // Fallback when QueryClientProvider is missing in unit tests
-  }
+  const permissionsQuery = useQuery({
+    queryKey: ["permissions"],
+    queryFn: () => permissionsApi.getPermissions(),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
 
   const isSuperAdmin = user?.status === "ACTIVE" && Boolean(user.is_super_admin);
 

@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/features/auth/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -33,12 +34,18 @@ vi.mock("@/api/units", () => ({
 
 describe("AppShell", () => {
   it("renders header, sidebar, and content area", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
     render(
-      <MemoryRouter>
-        <AuthProvider>
-          <AppShell />
-        </AuthProvider>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AuthProvider>
+            <AppShell />
+          </AuthProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
