@@ -1,15 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useUserDetail } from "@/hooks/useUserDetail";
 import { Link, useNavigate } from "react-router-dom";
+import { UserDetailRolesSection } from "./UserDetailRolesSection";
 
 export function UserDetailPage() {
   const navigate = useNavigate();
@@ -106,41 +99,7 @@ export function UserDetailPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Penugasan Unit & Role</h2>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Unit ID / Nama</TableHead>
-              <TableHead>Role ID / Nama</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!user?.unit_role_assignments || user.unit_role_assignments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={2} className="text-center py-6 text-gray-500">
-                  Tidak ada penugasan unit dan role untuk user ini.
-                </TableCell>
-              </TableRow>
-            ) : (
-              user.unit_role_assignments?.map((assignment) => (
-                <TableRow key={`${assignment.unit_id}-${assignment.role_id}`}>
-                  <TableCell className="font-medium text-gray-900">
-                    {assignment.unit_name || assignment.unit_id}
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                      {assignment.role_name || assignment.role_id}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <UserDetailRolesSection user={user} />
     </div>
   );
 }

@@ -1,33 +1,33 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { useEditUser } from "@/hooks/useEditUser";
+import { Globe } from "lucide-react";
+import * as React from "react";
 import { Link } from "react-router-dom";
+import { ManageUserRolesModal } from "./ManageUserRolesModal";
 
 export function EditUserPage() {
-  const {
-    id,
-    isUserLoading,
-    units,
-    roles,
-    register,
-    handleSubmit,
-    errors,
-    fields,
-    append,
-    remove,
-  } = useEditUser();
+  const { id, user, isUserLoading, register, handleSubmit, errors, isPending } = useEditUser();
+  const [isManageRolesOpen, setIsManageRolesOpen] = React.useState(false);
 
-  if (isUserLoading) {
+  if (isUserLoading || !user) {
     return <div className="p-8 text-center text-gray-500">Memuat data user...</div>;
   }
+
+  const getUnitName = (unitId?: string | null, fallbackName?: string) => {
+    if (!unitId) return "Semua Unit (Global)";
+    return fallbackName || unitId;
+  };
+
+  const assignments = user.unit_role_assignments || [];
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Edit User</h1>
-          <p className="text-sm text-gray-500">Perbarui informasi profil dan penugasan unit.</p>
+          <p className="text-sm text-gray-500">Perbarui informasi profil pengguna.</p>
         </div>
         <Link
           to={`/users/${id}`}
@@ -64,88 +64,56 @@ export function EditUserPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Penugasan Unit & Role</h3>
+        {/* Ringkasan Penugasan Role & Shortcut */}
+        <div className="border-t border-gray-200 pt-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">Penugasan Unit & Role</h3>
+              <p className="text-xs text-gray-500">
+                Kelola hak akses dan penugasan unit melalui menu khusus.
+              </p>
+            </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ unit_id: "", role_id: "" })}
+              onClick={() => setIsManageRolesOpen(true)}
+              className="border-blue-600 text-blue-600 hover:bg-blue-50"
             >
-              + Tambah Penugasan
+              Kelola Role
             </Button>
           </div>
 
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="flex items-end gap-3 p-3 bg-gray-50 rounded-md border border-gray-200"
-              >
-                <div className="flex-1">
-                  <label
-                    htmlFor={`edit-unit-${index}`}
-                    className="block text-xs font-medium text-gray-700 mb-1"
-                  >
-                    Unit
-                  </label>
-                  <Select
-                    id={`edit-unit-${index}`}
-                    {...register(`unit_role_assignments.${index}.unit_id` as const)}
-                  >
-                    <option value="">Pilih Unit</option>
-                    {units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.name}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.unit_role_assignments?.[index]?.unit_id && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {errors.unit_role_assignments[index]?.unit_id?.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <label
-                    htmlFor={`edit-role-${index}`}
-                    className="block text-xs font-medium text-gray-700 mb-1"
-                  >
-                    Role
-                  </label>
-                  <Select
-                    id={`edit-role-${index}`}
-                    {...register(`unit_role_assignments.${index}.role_id` as const)}
-                  >
-                    <option value="">Pilih Role</option>
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.unit_role_assignments?.[index]?.role_id && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {errors.unit_role_assignments[index]?.role_id?.message}
-                    </p>
-                  )}
-                </div>
-
-                {fields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => remove(index)}
-                  >
-                    Hapus
-                  </Button>
-                )}
+          <div className="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-2">
+            {assignments.length === 0 ? (
+              <p className="text-sm text-gray-500 italic">
+                Tidak ada penugasan unit dan role aktif.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {assignments.map((assignment, idx) => {
+                  const isGlobal = !assignment.unit_id;
+                  const unitLabel = getUnitName(assignment.unit_id, assignment.unit_name);
+                  const roleLabel = assignment.role_name || assignment.role_id;
+                  return (
+                    <div
+                      key={assignment.id || `${assignment.unit_id}-${assignment.role_id}-${idx}`}
+                      className="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-gray-200 text-xs shadow-xs"
+                    >
+                      {isGlobal && <Globe className="h-3.5 w-3.5 text-blue-600" />}
+                      <span className="font-semibold text-gray-900">{unitLabel}</span>
+                      <span className="text-gray-400">•</span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-50 text-blue-700 border-blue-200"
+                      >
+                        {roleLabel}
+                      </Badge>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -156,9 +124,18 @@ export function EditUserPage() {
           >
             Batal
           </Link>
-          <Button type="submit">Simpan Perubahan</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+          </Button>
         </div>
       </form>
+
+      <ManageUserRolesModal
+        isOpen={isManageRolesOpen}
+        userId={user.id}
+        userName={user.name}
+        onClose={() => setIsManageRolesOpen(false)}
+      />
     </div>
   );
 }

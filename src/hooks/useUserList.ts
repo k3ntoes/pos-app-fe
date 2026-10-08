@@ -17,6 +17,15 @@ export function useUserList() {
   const [sortDir, setSortDir] = React.useState<"asc" | "desc">("desc");
 
   const [statusModalUser, setStatusModalUser] = React.useState<UserListItem | null>(null);
+  const [manageRolesUser, setManageRolesUser] = React.useState<UserListItem | null>(null);
+
+  const handleOpenManageRolesModal = (user: UserListItem) => {
+    setManageRolesUser(user);
+  };
+
+  const handleCloseManageRolesModal = () => {
+    setManageRolesUser(null);
+  };
 
   const { data: unitsResponse } = useQuery({
     queryKey: ["units"],
@@ -111,6 +120,7 @@ export function useUserList() {
     sortBy,
     sortDir,
     statusModalUser,
+    manageRolesUser,
     units,
     usersData,
     isLoading,
@@ -122,5 +132,7 @@ export function useUserList() {
     handleStatusChange,
     handleOpenStatusModal,
     handleCloseStatusModal,
+    handleOpenManageRolesModal,
+    handleCloseManageRolesModal,
   };
 }

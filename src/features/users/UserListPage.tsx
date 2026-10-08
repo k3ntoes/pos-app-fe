@@ -19,6 +19,7 @@ import {
 import { useUserList } from "@/hooks/useUserList";
 import type { UserStatus } from "@/types/user";
 import { Link } from "react-router-dom";
+import { ManageUserRolesModal } from "./ManageUserRolesModal";
 import { UserStatusModal } from "./UserStatusModal";
 
 export function UserListPage() {
@@ -30,6 +31,7 @@ export function UserListPage() {
     sortBy,
     sortDir,
     statusModalUser,
+    manageRolesUser,
     units,
     usersData,
     isLoading,
@@ -40,6 +42,8 @@ export function UserListPage() {
     handleStatusChange,
     handleOpenStatusModal,
     handleCloseStatusModal,
+    handleOpenManageRolesModal,
+    handleCloseManageRolesModal,
   } = useUserList();
 
   const getStatusBadge = (status: UserStatus) => {
@@ -194,6 +198,9 @@ export function UserListPage() {
                         <DropdownMenuItem render={<Link to={`/users/${user.id}/edit`} />}>
                           Edit
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenManageRolesModal(user)}>
+                          Kelola Role
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleOpenStatusModal(user)}>
                           Ubah Status
                         </DropdownMenuItem>
@@ -242,6 +249,15 @@ export function UserListPage() {
           isOpen={Boolean(statusModalUser)}
           onClose={handleCloseStatusModal}
           onConfirm={(status) => handleStatusChange(statusModalUser.id, status)}
+        />
+      )}
+
+      {manageRolesUser && (
+        <ManageUserRolesModal
+          open={Boolean(manageRolesUser)}
+          userId={manageRolesUser.id}
+          userName={manageRolesUser.name || manageRolesUser.full_name}
+          onClose={handleCloseManageRolesModal}
         />
       )}
     </div>

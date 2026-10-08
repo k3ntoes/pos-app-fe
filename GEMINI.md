@@ -40,6 +40,7 @@
 - **Hero Fallacy**: Flash DILARANG skip pemanggilan model Pro untuk masalah kompleks. Constraint `deep_reasoning` WAJIB dipatuhi tanpa pengecualian.
 - **Context Loss**: Payload dari Pro HARUS diteruskan ke user secara utuh. Gunakan format terstruktur (heading, bullet, code block) agar Flash tidak truncate informasi penting.
 - **Latency Tradeoff**: Latensi tambahan akibat rantai Root→Sub→Root adalah kompromi yang wajar untuk menghemat cost token. Jangan kompromikan kualitas demi kecepatan.
+- **Subagent Reuse (Stateful)**: JANGAN panggil `invoke_subagent` berulang kali untuk subagent yang sama. Panggil `invoke_subagent` **sekali saja** untuk membuat `technical_executor` dan `deep_reasoning`. Setelah conversation ID terbentuk, **gunakan `send_message`** ke ID tersebut untuk tugas berikutnya. Spawning subagent baru berulang-ulang menghabiskan resources dan menghilangkan konteks.
 
 ### Sub-Agent Error Handling
 - Jika sub-agent menemukan error → WAJIB laporkan detail ke root agent. DILARANG melakukan *self-fix loop*.

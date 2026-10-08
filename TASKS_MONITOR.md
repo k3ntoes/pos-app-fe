@@ -13,11 +13,11 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 | [`pos-app-fe-0rg`](#pos-app-fe-0rg) | Implementasi fitur Roles | P2 | Closed | Depends on: `pos-app-fe-aep` |
 | [`pos-app-fe-jnd`](#pos-app-fe-jnd) | Add change password menu in Header | P2 | Closed | - |
 | [`pos-app-fe-6s4`](#pos-app-fe-6s4) | Fix edit user HTTP method to PATCH | P1 | Closed | - |
-| [`pos-app-fe-deh`](#pos-app-fe-deh) | Implementasi shared hook dan modal dialog manajemen role pengguna | P1 | Open | Blocks: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564` |
-| [`pos-app-fe-15u`](#pos-app-fe-15u) | Integrasi quick action Kelola Role pada tabel UserListPage | P2 | Open | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
-| [`pos-app-fe-8e5`](#pos-app-fe-8e5) | Integrasi tabel interaktif manajemen role pada UserDetailPage | P2 | Open | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
-| [`pos-app-fe-564`](#pos-app-fe-564) | Penyelarasan EditUserPage dengan penghapusan form role dan penambahan UI shortcut | P2 | Open | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
-| [`pos-app-fe-8bt`](#pos-app-fe-8bt) | Pengujian unit dan integrasi untuk alur manipulasi role pengguna | P2 | Open | Depends on: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564` |
+| [`pos-app-fe-deh`](#pos-app-fe-deh) | Implementasi shared hook dan modal dialog manajemen role pengguna | P1 | Closed | Blocks: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564` |
+| [`pos-app-fe-15u`](#pos-app-fe-15u) | Integrasi quick action Kelola Role pada tabel UserListPage | P2 | Closed | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
+| [`pos-app-fe-8e5`](#pos-app-fe-8e5) | Integrasi tabel interaktif manajemen role pada UserDetailPage | P2 | Closed | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
+| [`pos-app-fe-564`](#pos-app-fe-564) | Penyelarasan EditUserPage dengan penghapusan form role dan penambahan UI shortcut | P2 | Closed | Depends on: `pos-app-fe-deh`<br>Blocks: `pos-app-fe-8bt` |
+| [`pos-app-fe-8bt`](#pos-app-fe-8bt) | Pengujian unit dan integrasi untuk alur manipulasi role pengguna | P2 | Closed | Depends on: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564` |
 
 ---
 
@@ -116,61 +116,60 @@ Dokumen ini berisi checklist alur pengerjaan / claim order monitoring untuk fron
 
 ### <a id="pos-app-fe-deh"></a>8. pos-app-fe-deh: Implementasi shared hook dan modal dialog manajemen role pengguna
 - **Prioritas:** P1
-- **Status:** Open (Claim Order: 1)
+- **Status:** Closed
 - **Dependency:** Blocks: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564`
 - **Subtasks:**
-  - [ ] Buat custom hook `useManageUserRoles` (query role assignments user, mutasi assign role via `POST /api/v1/users/:id/roles`, mutasi revoke role via `DELETE /api/v1/users/:id/roles/:assignmentId`, dan invalidasi cache TanStack Query).
-  - [ ] Buat komponen `ManageUserRolesModal` yang menampilkan daftar role aktif user, dialog/form penugasan role baru dengan smart filtering (unit Global di posisi pertama, disable role aktif pada unit terpilih, visual badge System vs Custom role), dan konfirmasi dialog destruktif sebelum mencabut role.
-  - [ ] Tambahkan helper API di `src/api/users.ts` untuk endpoint `getUserRoles` (`GET /api/v1/users/:id/roles`).
+  - [x] Buat custom hook `useManageUserRoles` (query role assignments user, mutasi assign role via `POST /api/v1/users/:id/roles`, mutasi revoke role via `DELETE /api/v1/users/:id/roles/:assignmentId`, dan invalidasi cache TanStack Query).
+  - [x] Buat komponen `ManageUserRolesModal` yang menampilkan daftar role aktif user, dialog/form penugasan role baru dengan smart filtering (unit Global di posisi pertama, disable role aktif pada unit terpilih, visual badge System vs Custom role), dan konfirmasi dialog destruktif sebelum mencabut role.
+  - [x] Tambahkan helper API di `src/api/users.ts` untuk endpoint `getUserRoles` (`GET /api/v1/users/:id/roles`).
 
 ---
 
 ### <a id="pos-app-fe-15u"></a>9. pos-app-fe-15u: Integrasi quick action Kelola Role pada tabel UserListPage
 - **Prioritas:** P2
-- **Status:** Open (Claim Order: 2)
+- **Status:** Closed
 - **Dependency:** Depends on: `pos-app-fe-deh`, Blocks: `pos-app-fe-8bt`
 - **Subtasks:**
-  - [ ] Tambahkan item dropdown "Kelola Role" pada menu aksi baris di `UserListPage.tsx`.
-  - [ ] Hubungkan trigger aksi dengan `ManageUserRolesModal` menggunakan state user terpilih di `useUserList.ts`.
-  - [ ] Pastikan penutupan modal merefleksikan perubahan pada badge penugasan di tabel tanpa reload browser.
+  - [x] Tambahkan item dropdown "Kelola Role" pada menu aksi baris di `UserListPage.tsx`.
+  - [x] Hubungkan trigger aksi dengan `ManageUserRolesModal` menggunakan state user terpilih di `useUserList.ts`.
+  - [x] Pastikan penutupan modal merefleksikan perubahan pada badge penugasan di tabel tanpa reload browser.
 
 ---
 
 ### <a id="pos-app-fe-8e5"></a>10. pos-app-fe-8e5: Integrasi tabel interaktif manajemen role pada UserDetailPage
 - **Prioritas:** P2
-- **Status:** Open (Claim Order: 3)
+- **Status:** Closed
 - **Dependency:** Depends on: `pos-app-fe-deh`, Blocks: `pos-app-fe-8bt`
 - **Subtasks:**
-  - [ ] Tambahkan tombol "+ Tambah Role" di header card Penugasan Unit & Role pada `UserDetailPage.tsx`.
-  - [ ] Ubah tabel statis menjadi tabel interaktif dengan kolom aksi pencabutan role (tombol Hapus dengan icon/label destruktif).
-  - [ ] Hubungkan aksi tambah role dan cabut role dengan dialog konfirmasi serta mutasi hook `useManageUserRoles`.
+  - [x] Tambahkan tombol "+ Tambah Role" di header card Penugasan Unit & Role pada `UserDetailPage.tsx`.
+  - [x] Ubah tabel statis menjadi tabel interaktif dengan kolom aksi pencabutan role (tombol Hapus dengan icon/label destruktif).
+  - [x] Hubungkan aksi tambah role dan cabut role dengan dialog konfirmasi serta mutasi hook `useManageUserRoles`.
 
 ---
 
 ### <a id="pos-app-fe-564"></a>11. pos-app-fe-564: Penyelarasan EditUserPage dengan penghapusan form role dan penambahan UI shortcut
 - **Prioritas:** P2
-- **Status:** Open (Claim Order: 4)
+- **Status:** Closed
 - **Dependency:** Depends on: `pos-app-fe-deh`, Blocks: `pos-app-fe-8bt`
 - **Subtasks:**
-  - [ ] Hapus field array `unit_role_assignments` dari `EditUserPage.tsx`, `useEditUser.ts`, dan skema `updateUserSchema` di `src/schemas/user.ts`.
-  - [ ] Ganti form input array dengan ringkasan badge role aktif pengguna saat ini dan tombol tautan/shortcut "Kelola Role" yang membuka `ManageUserRolesModal`.
-  - [ ] Pastikan submit form edit profil hanya mengirim atribut `full_name` / `name` dan `email` ke `PATCH /api/v1/users/:id`.
+  - [x] Hapus field array `unit_role_assignments` dari `EditUserPage.tsx`, `useEditUser.ts`, dan skema `updateUserSchema` di `src/schemas/user.ts`.
+  - [x] Ganti form input array dengan ringkasan badge role aktif pengguna saat ini dan tombol tautan/shortcut "Kelola Role" yang membuka `ManageUserRolesModal`.
+  - [x] Pastikan submit form edit profil hanya mengirim atribut `full_name` / `name` dan `email` ke `PATCH /api/v1/users/:id`.
 
 ---
 
 ### <a id="pos-app-fe-8bt"></a>12. pos-app-fe-8bt: Pengujian unit dan integrasi untuk alur manipulasi role pengguna
 - **Prioritas:** P2
-- **Status:** Open (Claim Order: 5)
+- **Status:** Closed
 - **Dependency:** Depends on: `pos-app-fe-15u`, `pos-app-fe-8e5`, `pos-app-fe-564`
 - **Subtasks:**
-  - [ ] Buat unit test `ManageUserRolesModal.test.tsx` untuk memvalidasi rendering role aktif, smart filtering unit & role, alur assign role, dan alur revoke role dengan dialog konfirmasi.
-  - [ ] Perbarui pengujian `UserListPage.test.tsx` untuk memverifikasi pembukaan modal "Kelola Role" dari dropdown aksi.
-  - [ ] Perbarui pengujian `UserDetailPage.test.tsx` untuk memverifikasi penambahan dan penghapusan role pada tabel interaktif.
-  - [ ] Perbarui pengujian `EditUserPage.test.tsx` untuk memverifikasi hilangnya input array role dan keberadaan shortcut "Kelola Role".
-  - [ ] Jalankan validasi menyeluruh: `bun run lint`, `bun x tsc --noEmit`, dan `bun test`.
+  - [x] Buat unit test `ManageUserRolesModal.test.tsx` untuk memvalidasi rendering role aktif, smart filtering unit & role, alur assign role, dan alur revoke role dengan dialog konfirmasi.
+  - [x] Perbarui pengujian `UserListPage.test.tsx` untuk memverifikasi pembukaan modal "Kelola Role" dari dropdown aksi.
+  - [x] Perbarui pengujian `UserDetailPage.test.tsx` untuk memverifikasi penambahan dan penghapusan role pada tabel interaktif.
+  - [x] Perbarui pengujian `EditUserPage.test.tsx` untuk memverifikasi hilangnya input array role dan keberadaan shortcut "Kelola Role".
+  - [x] Jalankan validasi menyeluruh: `bun run lint`, `bun x tsc --noEmit`, dan `bun test`.
 
 ---
 
 ## Catatan Arsitektur
 - `CONTEXT.md` telah dipecah menjadi multi-context domain architecture (`docs/domain/`, `CONTEXT-MAP.md`).
-

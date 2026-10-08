@@ -9,6 +9,7 @@ import type {
   UserDetail,
   UserFilterParams,
   UserListItem,
+  UserRoleAssignmentResponse,
   UserStatus,
 } from "@/types/user";
 import { apiClient } from "./client";
@@ -82,8 +83,19 @@ export const usersApi = {
     return ("data" in res && res.data ? res.data : res) as ResetPasswordResponse;
   },
 
-  assignUserRole: async (id: string, unit_id: string, role_id: string): Promise<void> => {
+  assignUserRole: async (id: string, unit_id: string | null, role_id: string): Promise<void> => {
     await apiClient.post(`/api/v1/users/${id}/roles`, { unit_id, role_id });
+  },
+
+  getUserRoles: async (userId: string): Promise<UserRoleAssignmentResponse[]> => {
+    const res = await apiClient.get<
+      { data: UserRoleAssignmentResponse[] } | UserRoleAssignmentResponse[]
+    >(`/api/v1/users/${userId}/roles`);
+    if (Array.isArray(res)) return res;
+    if (res && typeof res === "object" && "data" in res && Array.isArray(res.data)) {
+      return res.data;
+    }
+    return [];
   },
 
   removeUserRole: async (userId: string, assignmentId: string): Promise<void> => {

@@ -27,7 +27,6 @@ export const updateUserSchema = z.object({
     .optional(),
   name: z.string().optional(),
   email: z.string().email("Format email tidak valid").optional().or(z.literal("")).nullable(),
-  unit_role_assignments: z.array(unitRoleAssignmentSchema).optional(),
 });
 
 export const userStatusSchema = z.object({
