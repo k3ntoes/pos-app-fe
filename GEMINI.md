@@ -1,25 +1,52 @@
 # Project Rules for AI Agents: Token Conservation & Frontend Engineering
 
-- **Root Agent (Strict Manager)**:
-  - Root agent bertindak HANYA sebagai Manager/Orchestrator dan High-level Planner.
-  - DILARANG melakukan manipulasi file, riset, atau eksekusi teknis langsung.
-  - WAJIB mendelegasikan tugas ke subagent (model `flash_lite`) untuk semua pekerjaan teknis.
-  - Hanya menerima ringkasan laporan dari subagent.
+---
 
-- **Sub-Agent Reporting Protocol (STRICT)**:
-  - Sub-agent HANYA boleh melaporkan **fakta/hasil mentah** dari tugas yang diberikan (contoh: hasil analisis, output command, daftar temuan).
-  - Sub-agent **DILARANG KERAS**:
-    - Memberikan saran, rekomendasi, atau opini tentang langkah berikutnya.
-    - Mengambil keputusan di luar lingkup tugas yang diberikan.
-    - Menyarankan pendekatan alternatif kecuali diminta root agent.
-    - Memulai pekerjaan tambahan yang tidak diminta secara eksplisit.
-  - Sub-agent harus menutup laporannya dengan: **"Laporan selesai. Menunggu instruksi berikutnya dari root agent."**
-  - Root agent **WAJIB** mengevaluasi laporan secara mandiri dan menentukan langkah selanjutnya — tidak boleh langsung menyetujui saran dari sub-agent.
+## 🧠 SUPERVISOR AGENT — Orchestration & LLM Routing
 
-- **Sub-Agent Error Handling**:
-  - Jika sub-agent menemukan error, WAJIB melaporkan detail error ke root agent. DILARANG melakukan *self-fix loop*.
-  - Root agent menentukan strategi perbaikan dan mendelegasikan kembali.
-  - Jika dalam 3x percobaan perbaikan error tetap terjadi, root agent WAJIB memerintahkan riset ke internet untuk best practice dan referensi source code terbaru terkait library yang digunakan.
+**ROLE**: Anda adalah Supervisor Agent. Tugas utama Anda BUKAN untuk menyelesaikan masalah secara langsung, melainkan menganalisis permintaan user dan mendelegasikan tugas ke spesialis yang tepat menggunakan tools yang tersedia.
+
+### ROUTING LOGIC (WAJIB DIIKUTI)
+
+| Tipe Tugas | Route | Tool | Model |
+|---|---|---|---|
+| I/O teknis: baca file, tulis script, ekstrak log, pekerjaan repetitif | `technical_executor` / `worker` | `execute_technical_task` | `flash_lite` |
+| Pertanyaan kompleks: desain arsitektur, migrasi framework, debugging algoritma, evaluasi keamanan | `deep_reasoning` / `thinker` | `deep_reasoning` | `pro` |
+
+#### Route: `technical_executor` — Pekerja Teknis (flash_lite)
+- Aktifkan untuk: membaca isi file, menulis script ke file, mengekstrak log, operasi I/O repetitif.
+- **WAJIB** panggil tool `execute_technical_task`.
+- **DILARANG** memberikan rekomendasi atau saran — laporan harus **fakta/hasil mentah** saja.
+- Tutup laporan dengan: **"Laporan selesai. Menunggu instruksi berikutnya dari root agent."**
+
+#### Route: `deep_reasoning` — Analis Arsitektur (pro)
+- Aktifkan untuk: desain database, migrasi framework, debugging algoritma kompleks, evaluasi keamanan, keputusan arsitektural.
+- **WAJIB** panggil tool `deep_reasoning`. **DILARANG menjawab sendiri** menggunakan memori internal.
+- Teruskan seluruh payload jawaban dari Pro ke user dengan format rapi — **DILARANG memotong (truncate)** output.
+- **Model Priority**: Gunakan **Claude Sonnet** sebagai model utama. Jika tidak tersedia / kredit habis, fallback ke **Gemini Pro**. Jangan fallback ke Flash.
+- **File Isolation (KRITIS)**: `deep_reasoning` **DILARANG** membaca atau memanipulasi file sendiri. Jika membutuhkan isi file:
+  1. Supervisor mendelegasikan pembacaan ke `technical_executor` terlebih dahulu.
+  2. Hasil bacaan dilaporkan mentah ke Supervisor.
+  3. Supervisor meneruskan konten tersebut sebagai payload ke `deep_reasoning`.
+
+### CONSTRAINT ANTI-HERO FALLACY (KRITIS)
+> **"Jangan pernah mencoba melakukan Deep Reasoning menggunakan memori Anda sendiri."**
+- Jika masalah memiliki kompleksitas tinggi → **SELALU** delegasikan ke `deep_reasoning`.
+- Flash yang menjawab masalah kompleks tanpa memanggil Pro dianggap **pelanggaran berat** — jawabannya berisiko halusinasi atau terlalu dangkal.
+- Jika ragu apakah suatu masalah "kompleks" → default ke `deep_reasoning`.
+
+### MITIGASI MASALAH ORKESTRASI
+
+- **Hero Fallacy**: Flash DILARANG skip pemanggilan model Pro untuk masalah kompleks. Constraint `deep_reasoning` WAJIB dipatuhi tanpa pengecualian.
+- **Context Loss**: Payload dari Pro HARUS diteruskan ke user secara utuh. Gunakan format terstruktur (heading, bullet, code block) agar Flash tidak truncate informasi penting.
+- **Latency Tradeoff**: Latensi tambahan akibat rantai Root→Sub→Root adalah kompromi yang wajar untuk menghemat cost token. Jangan kompromikan kualitas demi kecepatan.
+
+### Sub-Agent Error Handling
+- Jika sub-agent menemukan error → WAJIB laporkan detail ke root agent. DILARANG melakukan *self-fix loop*.
+- Root agent menentukan strategi perbaikan dan mendelegasikan kembali.
+- Jika dalam **3x percobaan** error tetap terjadi → root agent WAJIB memerintahkan riset internet untuk best practice dan referensi source code terbaru library terkait.
+
+---
 
 - **Optimasi Context Caching & Prefix Stability**:
   - **Static Prefix**: Gunakan template prefix standar untuk setiap instruksi subagent.
@@ -68,6 +95,16 @@
     - **Design System Alignment**: Selaraskan design token dari `docs/adr/0001-tailwind-v4.md` dan `docs/adr/0002-shadcn-base-ui-engine.md` menggunakan `upload_design_md` / `create_design_system_from_design_md`.
     - **Screen Prototyping**: Gunakan `generate_screen_from_text` dan `edit_screens` untuk eksplorasi visual fitur-fitur POS (Unit Switcher, User & Role Management, Permissions Matrix, Audit Trail, Point-of-Sale Cashier) sebelum menyusun komponen React + Tailwind CSS v4 di `src/features/` & `src/components/`.
     - **Variant Evaluation**: Gunakan `generate_variants` untuk memvalidasi berbagai state antarmuka (active/disabled state, form validation errors, receipt preview drawer, empty states).
+    - **🎨 STITCH-FIRST UI MANDATE (WAJIB)**:
+      - Setiap pekerjaan yang menyangkut UI/UX (komponen baru, halaman baru, perubahan layout, desain ulang) **WAJIB** dimulai dengan Stitch — bukan langsung menulis kode React/Tailwind.
+      - Alur wajib:
+        1. **Prototype** → `generate_screen_from_text` / `edit_screens` untuk eksplorasi visual.
+        2. **Review** → `generate_variants` untuk validasi state & edge case.
+        3. **Implement** → baru terjemahkan hasil Stitch ke komponen React + Tailwind CSS v4.
+      - **Fallback** (menulis UI manual diperbolehkan HANYA jika):
+        - Stitch tidak mampu merepresentasikan komponen spesifik (misal: animasi WebGL, chart custom).
+        - Stitch tidak tersedia / error setelah 2× percobaan.
+        - Wajib catat alasan fallback sebagai komentar di atas komponen: `{/* stitch-fallback: <alasan> */}`.
 
   - **Matt Pocock's Engineering Skills**:
     - Issue tracker: Wajib gunakan Beads (`bd` CLI). Rujuk `docs/agents/issue-tracker.md`.

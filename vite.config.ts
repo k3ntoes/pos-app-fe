@@ -26,8 +26,8 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     setupFiles: "./src/test/setup.ts",
-    dir: "./src",
+    dir: path.resolve(__dirname, "./src"),
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "e2e/**"],
+    exclude: ["e2e/**", "**/e2e/**", "node_modules/**", "dist/**"],
   },
 });

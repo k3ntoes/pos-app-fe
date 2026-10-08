@@ -97,14 +97,14 @@ export const AuditTable: React.FC<AuditTableProps> = ({
                   <span className="font-medium text-gray-900">{log.resource_type}</span>
                   {log.resource_id && (
                     <span
-                      className="text-xs text-gray-500 block truncate max-w-[150px]"
+                      className="text-xs text-gray-500 block truncate max-w-37.5"
                       title={log.resource_id}
                     >
                       ID: {log.resource_id}
                     </span>
                   )}
                 </TableCell>
-                <TableCell className="text-sm text-gray-500 font-mono text-xs">
+                <TableCell className="text-sm text-gray-500 font-mono">
                   {log.ip_address || "-"}
                 </TableCell>
                 <TableCell className="text-right">

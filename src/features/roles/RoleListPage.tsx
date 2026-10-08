@@ -43,7 +43,7 @@ export function RoleListPage() {
         </div>
         <Link
           to="/roles/new"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-[44px] bg-blue-600 text-white hover:bg-blue-700 shadow h-11 px-4 py-2 min-h-11"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-11 bg-blue-600 text-white hover:bg-blue-700 shadow h-11 px-4 py-2"
         >
           + Tambah Role
         </Link>

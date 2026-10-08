@@ -22,7 +22,7 @@ describe("LoginPage", () => {
 
     expect(screen.getByRole("heading", { name: /Login POS App/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Login/i })).toBeInTheDocument();
   });
 
@@ -49,7 +49,7 @@ describe("LoginPage", () => {
     );
 
     await userEvent.type(screen.getByLabelText(/Username/i), "admin");
-    await userEvent.type(screen.getByLabelText(/Password/i), "password123");
+    await userEvent.type(screen.getByPlaceholderText(/••••••••/i), "password123");
     await userEvent.click(screen.getByRole("button", { name: /Login/i }));
 
     await waitFor(() => {

@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/common/PasswordInput";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -44,9 +45,8 @@ export const LoginPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 {...register("password")}
                 aria-invalid={errors.password ? "true" : "false"}
