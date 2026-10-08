@@ -1,10 +1,24 @@
+import { permissionsApi } from "@/api/permissions";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useUnit } from "@/features/units/UnitContext";
-import type { PermissionType } from "@/types/permission";
+import type { BackendPermissionGroup, PermissionType } from "@/types/permission";
+import { useQuery } from "@tanstack/react-query";
 
 export function usePermissions() {
   const { user } = useAuth();
   const { activeUnit, userAssignments } = useUnit();
+
+  let permissionsQuery = { data: [] as BackendPermissionGroup[], isLoading: false, error: null };
+  try {
+    permissionsQuery = useQuery({
+      queryKey: ["permissions"],
+      queryFn: () => permissionsApi.getPermissions(),
+      staleTime: 5 * 60 * 1000,
+      retry: false,
+    });
+  } catch {
+    // Fallback when QueryClientProvider is missing in unit tests
+  }
 
   const isSuperAdmin = user?.status === "ACTIVE" && Boolean(user.is_super_admin);
 
@@ -49,9 +63,14 @@ export function usePermissions() {
     return false;
   };
 
+  const permissionGroups: BackendPermissionGroup[] = permissionsQuery.data || [];
+
   return {
     hasPermission,
     hasAnyPermission,
     hasRole,
+    permissionGroups,
+    isLoadingPermissions: permissionsQuery.isLoading,
+    permissionsError: permissionsQuery.error,
   };
 }

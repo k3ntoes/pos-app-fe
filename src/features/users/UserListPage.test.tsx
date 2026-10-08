@@ -11,6 +11,7 @@ vi.mock("@/api/users", () => ({
   usersApi: {
     getUsers: vi.fn(),
     updateUserStatus: vi.fn(),
+    resetPassword: vi.fn(),
   },
 }));
 
@@ -134,5 +135,79 @@ describe("UserListPage", () => {
     await userEvent.click(kelolaRoleItem);
 
     expect(screen.getByText(/Kelola Role: Budi Santoso/i)).toBeInTheDocument();
+  });
+
+  it("handles reset password confirmation and displays temporary password modal", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    vi.mocked(usersApi.getUsers).mockResolvedValueOnce({
+      data: [
+        {
+          id: "usr-1",
+          full_name: "Budi Santoso",
+          name: "Budi Santoso",
+          username: "budi",
+          email: "budi@pos.com",
+          status: "ACTIVE",
+          created_at: "2026-10-01T00:00:00Z",
+          updated_at: "2026-10-01T00:00:00Z",
+          unit_role_assignments: [],
+        },
+      ],
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 1,
+        page: 1,
+        page_size: 10,
+        total_items: 1,
+        total_pages: 1,
+      },
+    });
+
+    vi.mocked(unitsApi.getUnits).mockResolvedValueOnce({
+      units: [],
+      total: 0,
+    });
+
+    vi.mocked(usersApi.resetPassword).mockResolvedValueOnce({
+      user_id: "usr-1",
+      temporary_password: "new-temporary-pass-123",
+      must_change_password: true,
+      message: "Password reset successful",
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <UserListPage />
+        </BrowserRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Budi Santoso")).toBeInTheDocument();
+    });
+
+    const menuTrigger = screen.getByRole("button", { name: /Open menu/i });
+    await userEvent.click(menuTrigger);
+
+    const resetItem = screen.getByText("Reset Password");
+    expect(resetItem).toBeInTheDocument();
+    await userEvent.click(resetItem);
+
+    // Confirmation dialog appears
+    expect(screen.getByText("Konfirmasi Reset Password")).toBeInTheDocument();
+    const confirmBtn = screen.getByRole("button", { name: /Ya, Reset Password/i });
+    await userEvent.click(confirmBtn);
+
+    // Temporary password modal appears
+    await waitFor(() => {
+      expect(screen.getByText(/Password Sementara Reset User/i)).toBeInTheDocument();
+      expect(screen.getByDisplayValue("new-temporary-pass-123")).toBeInTheDocument();
+    });
   });
 });

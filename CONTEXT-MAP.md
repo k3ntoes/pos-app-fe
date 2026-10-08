@@ -15,4 +15,11 @@ This file links to the modularized domain contexts for the POS Application Front
 - [ADR 0003: Eager Permission Loading](docs/adr/0003-eager-permission-loading.md)
 - [ADR 0004: Unit Context Storage](docs/adr/0004-unit-context-storage.md)
 - [ADR 0005: Granular Role Assignment dengan Hybrid UI](docs/adr/0005-granular-role-assignment-hybrid-ui.md)
+- [ADR 0006: Centralized Clipboard Utility & Admin Password Management](docs/adr/0006-admin-reset-password-and-clipboard-utility.md)
+- [ADR 0007: Generic DataTable Architecture & Bundle Optimization](docs/adr/0007-generic-data-table-and-bundle-optimization.md)
 
+## Core Modules & Shared Utilities
+- `src/components/data-table/`: Generic DataTable & pagination components.
+- `src/lib/clipboard.ts`: Centralized clipboard utility with fallback.
+- `src/lib/format.ts`: Native Intl date and currency formatting helpers.
+- `src/lib/permissionMapper.ts`: Permission sanitization and mapping utilities.

@@ -16,8 +16,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRoleList } from "@/hooks/useRoleList";
+import type { RoleListItem } from "@/types/role";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { DeleteRoleModal } from "./DeleteRoleModal";
+import { ManageRolePermissionsDrawer } from "./ManageRolePermissionsDrawer";
 
 export function RoleListPage() {
   const {
@@ -31,6 +34,10 @@ export function RoleListPage() {
     handleOpenDeleteModal,
     handleCloseDeleteModal,
   } = useRoleList();
+
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<RoleListItem | null>(
+    null,
+  );
 
   return (
     <div className="space-y-6">
@@ -67,7 +74,6 @@ export function RoleListPage() {
               <TableHead>Nama Role</TableHead>
               <TableHead>Tipe</TableHead>
               <TableHead>Deskripsi</TableHead>
-              <TableHead>Jumlah User</TableHead>
               <TableHead>Permissions</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
@@ -75,13 +81,13 @@ export function RoleListPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                   Memuat data roles...
                 </TableCell>
               </TableRow>
             ) : filteredRoles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                   Tidak ada role ditemukan.
                 </TableCell>
               </TableRow>
@@ -104,12 +110,13 @@ export function RoleListPage() {
                     {role.description || "-"}
                   </TableCell>
                   <TableCell>
-                    <span className="font-semibold">{role?.assigned_users_count ?? 0}</span> user
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm font-medium text-indigo-600">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRoleForPermissions(role)}
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-800 underline transition-colors text-left"
+                    >
                       {role.permissions?.length || 0} permissions
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -121,6 +128,9 @@ export function RoleListPage() {
                         }
                       />
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setSelectedRoleForPermissions(role)}>
+                          Manage Permissions
+                        </DropdownMenuItem>
                         <DropdownMenuItem render={<Link to={`/roles/${role.id}`} />}>
                           Detail
                         </DropdownMenuItem>
@@ -147,6 +157,14 @@ export function RoleListPage() {
           </TableBody>
         </Table>
       </div>
+
+      <ManageRolePermissionsDrawer
+        role={selectedRoleForPermissions}
+        open={Boolean(selectedRoleForPermissions)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedRoleForPermissions(null);
+        }}
+      />
 
       <DeleteRoleModal
         role={deleteModalRole}

@@ -5,6 +5,21 @@ import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { EditRolePage } from "./EditRolePage";
 
+vi.mock("@/features/roles/usePermissions", () => ({
+  usePermissions: () => ({
+    permissionGroups: [
+      {
+        description: "Manajemen Pengguna",
+        permissions: [
+          { description: "Buat Pengguna", permission: "users:create" },
+        ],
+      },
+    ],
+    isLoadingPermissions: false,
+    permissionsError: null,
+  }),
+}));
+
 vi.mock("@/api/roles", () => ({
   rolesApi: {
     getRoleById: vi.fn(),
@@ -45,9 +60,10 @@ describe("EditRolePage", () => {
       </QueryClientProvider>,
     );
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByText(/Edit Role: Administrator/i)).toBeInTheDocument();
       expect(screen.getByText("System Role")).toBeInTheDocument();
+      expect(await screen.findByText("Manajemen Pengguna")).toBeInTheDocument();
       const nameInput = screen.getByLabelText(/Nama Role/i) as HTMLInputElement;
       expect(nameInput.readOnly).toBe(true);
     });

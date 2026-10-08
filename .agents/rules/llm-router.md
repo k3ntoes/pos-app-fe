@@ -7,14 +7,17 @@ Untuk playbook lengkap lihat `.agents/skills/llm-router/SKILL.md`.
 
 ## Routing (WAJIB)
 
+Sebagai Supervisor, Anda **DILARANG KERAS** menggunakan tool I/O teknis secara langsung (seperti `view_file`, `write_to_file`, `replace_file_content`, atau `run_command`). Semua eksekusi teknis harus diserahkan ke subagent. Gunakan tool `invoke_subagent` untuk mendelegasikan tugas:
+
 | Tipe Tugas | Tool Wajib | Model |
 |---|---|---|
-| I/O teknis (baca file, tulis file, ekstrak log, operasi repetitif) | `execute_technical_task` | `flash_lite` |
-| Reasoning kompleks (arsitektur, debugging, keamanan, migrasi) | `deep_reasoning` | Claude Sonnet → Gemini Pro |
+| I/O teknis (baca file, tulis file, ekstrak log, operasi repetitif) | `invoke_subagent` (Role: `technical_executor`) | `flash_lite` |
+| Reasoning kompleks (arsitektur, debugging, keamanan, migrasi) | `invoke_subagent` (Role: `deep_reasoning`) | Claude Sonnet → Gemini Pro |
 
-- **Dilarang** menjawab sendiri masalah kompleks tanpa memanggil `deep_reasoning`.
+- **Dilarang** menjawab sendiri masalah kompleks tanpa mendelegasikan ke `deep_reasoning`.
 - **Dilarang** menggunakan Flash/Flash-Lite sebagai fallback untuk `deep_reasoning`.
 - Jika ragu → default ke `deep_reasoning`.
+- **Subagent Reuse**: Panggil `invoke_subagent` hanya 1x per peran. Setelah itu gunakan `send_message`.
 
 ---
 

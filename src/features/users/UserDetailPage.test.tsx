@@ -13,6 +13,7 @@ vi.mock("@/api/users", () => ({
     getUserRoles: vi.fn().mockResolvedValue([]),
     removeUserRole: vi.fn(),
     assignUserRole: vi.fn(),
+    resetPassword: vi.fn(),
   },
 }));
 
@@ -115,6 +116,60 @@ describe("UserDetailPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/Cabut Role Pengguna/i)).toBeInTheDocument();
       expect(screen.getByText(/Apakah Anda yakin ingin mencabut role/i)).toBeInTheDocument();
+    });
+  });
+
+  it("handles reset password flow interactively", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    vi.mocked(usersApi.getUserById).mockResolvedValue({
+      id: "usr-1",
+      name: "Budi Santoso",
+      username: "budi",
+      email: "budi@pos.com",
+      status: "ACTIVE",
+      must_change_password: false,
+      created_at: "2026-10-01T00:00:00Z",
+      updated_at: "2026-10-01T00:00:00Z",
+      unit_role_assignments: [],
+    });
+
+    vi.mocked(usersApi.resetPassword).mockResolvedValue({
+      message: "Password reset successfully",
+      temporary_password: "TempPassword123!",
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/users/usr-1"]}>
+          <Routes>
+            <Route path="/users/:id" element={<UserDetailPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Budi Santoso")).toBeInTheDocument();
+    });
+
+    // Click Reset Password button
+    const resetButton = screen.getByRole("button", { name: /Reset Password/i });
+    fireEvent.click(resetButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Konfirmasi Reset Password/i)).toBeInTheDocument();
+    });
+
+    // Confirm reset
+    const confirmButton = screen.getByRole("button", { name: /Ya, Reset Password/i });
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password Sementara User Baru/i)).toBeInTheDocument();
+      expect(screen.getByDisplayValue("TempPassword123!")).toBeInTheDocument();
     });
   });
 });

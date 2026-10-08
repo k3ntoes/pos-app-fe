@@ -45,7 +45,7 @@ Backend FastAPI bertindak sebagai **Single Source of Truth (SSOT)** untuk kontra
 
 ### 3.1 Standar Format Data & Kontrak API
 - **Format Waktu**: Seluruh timestamp menggunakan format ISO 8601 UTC dengan akhiran `Z` (contoh: `2026-10-03T09:00:00Z`).
-- **Naming Convention**: Properti JSON menggunakan `snake_case` untuk menyamakan DTO FastAPI backend.
+- **Naming Convention**: Properti JSON menggunakan `snake_case` untuk menyamakan DTO FastAPI backend. *(Pengecualian: Value permission string seperti `users:read`, `roles:manage` dikecualikan dari konvensi snake_case dan dikirimkan apa adanya/as-is persis sesuai respons endpoint `GET /permission`).*
 - **Paginasi Standar**: Response list menyertakan metadata (`total`, `page`, `size`, `pages`) dengan parameter query `page` dan `size`.
 
 ### 3.2 HTTP Error Handling Rules

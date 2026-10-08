@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { copyToClipboard } from "@/lib/clipboard";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -14,6 +15,7 @@ interface TemporaryPasswordModalProps {
   open: boolean;
   temporaryPassword: string;
   userName: string;
+  isReset?: boolean;
   onClose: () => void;
 }
 
@@ -21,18 +23,19 @@ export function TemporaryPasswordModal({
   open,
   temporaryPassword,
   userName,
+  isReset = false,
   onClose,
 }: TemporaryPasswordModalProps) {
   const [copied, setCopied] = React.useState(false);
   const [acknowledged, setAcknowledged] = React.useState(false);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(temporaryPassword);
+    const success = await copyToClipboard(temporaryPassword);
+    if (success) {
       setCopied(true);
       toast.success("Password sementara berhasil disalin ke clipboard");
       setTimeout(() => setCopied(false), 3000);
-    } catch {
+    } else {
       toast.error("Gagal menyalin password");
     }
   };
@@ -41,10 +44,11 @@ export function TemporaryPasswordModal({
     <Dialog open={open}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Password Sementara User Baru</DialogTitle>
+          <DialogTitle>Password Sementara {isReset ? "Reset User" : "User Baru"}</DialogTitle>
           <DialogDescription>
-            Akun untuk <span className="font-semibold text-gray-900">{userName}</span> berhasil
-            dibuat.
+            {isReset ? "Password untuk " : "Akun untuk "}
+            <span className="font-semibold text-gray-900">{userName}</span>{" "}
+            {isReset ? "berhasil di-reset." : "berhasil dibuat."}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">

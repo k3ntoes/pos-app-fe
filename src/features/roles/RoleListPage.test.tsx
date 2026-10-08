@@ -4,6 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { RoleListPage } from "./RoleListPage";
+import { AuthProvider } from "@/features/auth/AuthContext";
 
 vi.mock("@/api/roles", () => ({
   rolesApi: {
@@ -24,7 +25,7 @@ describe("RoleListPage", () => {
         name: "Administrator",
         description: "Full system access",
         is_system: true,
-        permissions: ["users:create", "users:read"],
+        permissions: ["USERS_CREATE", "USERS_READ"],
         assigned_users_count: 2,
         created_at: "2026-10-01T00:00:00Z",
         updated_at: "2026-10-01T00:00:00Z",
@@ -34,7 +35,7 @@ describe("RoleListPage", () => {
         name: "Cashier",
         description: "POS cashier access",
         is_system: false,
-        permissions: ["pos:cashier"],
+        permissions: ["POS_CASHIER"],
         assigned_users_count: 0,
         created_at: "2026-10-01T00:00:00Z",
         updated_at: "2026-10-01T00:00:00Z",
@@ -43,9 +44,11 @@ describe("RoleListPage", () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <RoleListPage />
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <RoleListPage />
+          </BrowserRouter>
+        </AuthProvider>
       </QueryClientProvider>,
     );
 

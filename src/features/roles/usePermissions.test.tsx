@@ -10,8 +10,8 @@ const TestConsumer = () => {
   const { hasPermission, hasRole } = usePermissions();
   return (
     <div>
-      <div data-testid="can-users-read">{hasPermission("users:read") ? "yes" : "no"}</div>
-      <div data-testid="can-users-create">{hasPermission("users:create") ? "yes" : "no"}</div>
+      <div data-testid="can-users-read">{hasPermission("USERS_READ") ? "yes" : "no"}</div>
+      <div data-testid="can-users-create">{hasPermission("USERS_CREATE") ? "yes" : "no"}</div>
       <div data-testid="has-owner">{hasRole("Owner") ? "yes" : "no"}</div>
     </div>
   );
@@ -24,7 +24,7 @@ describe("usePermissions", () => {
       username: "admin",
       email: "admin@pos.com",
       name: "Admin",
-      role: { id: "r1", name: "Staff", permissions: ["users:read"] },
+      role: { id: "r1", name: "Staff", permissions: ["USERS_READ"] },
       must_change_password: false,
       status: "ACTIVE",
       created_at: "",
@@ -36,7 +36,7 @@ describe("usePermissions", () => {
         user_id: "1",
         role_id: "r2",
         unit_id: "unit-1",
-        role: { id: "r2", name: "Manager", permissions: ["users:read", "users:create"] },
+        role: { id: "r2", name: "Manager", permissions: ["USERS_READ", "USERS_CREATE"] },
       },
     ];
 

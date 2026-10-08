@@ -5,6 +5,23 @@ import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { RoleDetailPage } from "./RoleDetailPage";
 
+vi.mock("@/features/roles/usePermissions", () => ({
+  usePermissions: () => ({
+    permissionGroups: [
+      {
+        description: "Manajemen Pengguna",
+        permissions: [
+          { description: "Lihat Pengguna", permission: "users:read" },
+          { description: "Kelola Pengguna", permission: "users:manage" },
+          { description: "Akses Kasir", permission: "pos:cashier" },
+        ],
+      },
+    ],
+    isLoadingPermissions: false,
+    permissionsError: null,
+  }),
+}));
+
 vi.mock("@/api/roles", () => ({
   rolesApi: {
     getRoleById: vi.fn(),
@@ -44,11 +61,11 @@ describe("RoleDetailPage", () => {
       </QueryClientProvider>,
     );
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByText("Cashier")).toBeInTheDocument();
       expect(screen.getByText("Cashier role description")).toBeInTheDocument();
       expect(screen.getByText("5 user")).toBeInTheDocument();
-      expect(screen.getByText("Manajemen Users")).toBeInTheDocument();
+      expect(await screen.findByText("Manajemen Pengguna")).toBeInTheDocument();
     });
   });
 });

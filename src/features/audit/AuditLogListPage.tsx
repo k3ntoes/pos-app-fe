@@ -1,5 +1,5 @@
+import { usePermissions } from "@/features/roles/usePermissions";
 import { useAuditLogList } from "@/hooks/useAuditLogList";
-import { usePermissions } from "@/hooks/usePermissions";
 import { Activity, ShieldAlert } from "lucide-react";
 import { AuditDiffViewerModal } from "./AuditDiffViewerModal";
 import { AuditFilterBar } from "./AuditFilterBar";

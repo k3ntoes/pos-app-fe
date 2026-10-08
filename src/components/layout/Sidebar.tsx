@@ -1,4 +1,4 @@
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/features/roles/usePermissions";
 import type { PermissionType } from "@/types/permission";
 import { Activity, Building, LayoutDashboard, Shield, ShoppingBag, Users } from "lucide-react";
 import type React from "react";

@@ -1,12 +1,24 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useResetPassword } from "@/features/users/useResetPassword";
 import { useUserDetail } from "@/hooks/useUserDetail";
 import { Link, useNavigate } from "react-router-dom";
+import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { TemporaryPasswordModal } from "./TemporaryPasswordModal";
 import { UserDetailRolesSection } from "./UserDetailRolesSection";
 
 export function UserDetailPage() {
   const navigate = useNavigate();
   const { user, isLoading, error } = useUserDetail();
+  const {
+    confirmUser,
+    successData,
+    isResetting,
+    triggerReset,
+    confirmReset,
+    cancelReset,
+    closeSuccessModal,
+  } = useResetPassword();
 
   if (isLoading) {
     return <div className="p-8 text-center text-gray-500">Memuat detail user...</div>;
@@ -51,6 +63,13 @@ export function UserDetailPage() {
           </p>
         </div>
         <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            onClick={() => triggerReset({ id: user.id, name: user.name })}
+            className="min-h-11"
+          >
+            Reset Password
+          </Button>
           <Link
             to="/users"
             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-11 min-w-11 border border-gray-300 bg-white hover:bg-gray-100 text-gray-900 shadow-sm h-11 px-4 py-2"
@@ -100,6 +119,23 @@ export function UserDetailPage() {
       </div>
 
       <UserDetailRolesSection user={user} />
+
+      <ResetPasswordDialog
+        open={Boolean(confirmUser)}
+        userName={confirmUser?.name}
+        isResetting={isResetting}
+        onConfirm={confirmReset}
+        onClose={cancelReset}
+      />
+
+      {successData && (
+        <TemporaryPasswordModal
+          open={Boolean(successData)}
+          temporaryPassword={successData.temporaryPassword}
+          userName={successData.userName}
+          onClose={closeSuccessModal}
+        />
+      )}
     </div>
   );
 }

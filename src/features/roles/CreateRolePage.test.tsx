@@ -5,6 +5,22 @@ import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { CreateRolePage } from "./CreateRolePage";
 
+vi.mock("@/features/roles/usePermissions", () => ({
+  usePermissions: () => ({
+    permissionGroups: [
+      {
+        description: "Manajemen Pengguna",
+        permissions: [
+          { description: "Lihat Pengguna", permission: "users:read" },
+          { description: "Kelola Pengguna", permission: "users:manage" },
+        ],
+      },
+    ],
+    isLoadingPermissions: false,
+    permissionsError: null,
+  }),
+}));
+
 vi.mock("@/api/roles", () => ({
   rolesApi: {
     createRole: vi.fn(),
@@ -37,6 +53,7 @@ describe("CreateRolePage", () => {
     );
 
     expect(screen.getByText(/Tambah Role Baru/i)).toBeInTheDocument();
+    expect(await screen.findByText("Manajemen Pengguna")).toBeInTheDocument();
 
     const nameInput = screen.getByLabelText(/Nama Role/i);
     fireEvent.change(nameInput, { target: { value: "Supervisor" } });

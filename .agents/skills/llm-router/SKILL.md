@@ -12,20 +12,22 @@ description: >
 
 ## 1. Decision Tree
 
+> **PENTING**: Sebagai Supervisor, Anda **DILARANG** melakukan I/O teknis sendiri. Jangan gunakan `view_file`, `write_to_file`, `replace_file_content`, atau `run_command`. Wajib delegasi ke subagent via `invoke_subagent` (dan `send_message` untuk delegasi tugas selanjutnya ke agen yang sudah ada).
+
 ```
 Incoming task
 │
 ├─ Is it I/O / repetitive / file work?
 │   (read file, write script, extract log, run grep, parse output)
 │   └─→  Route: TECHNICAL_EXECUTOR
-│         Tool : execute_technical_task
+│         Tool : invoke_subagent (Role: technical_executor)
 │         Model: flash_lite
 │         Rule : report raw facts only; end with sentinel phrase
 │
 └─ Does it require reasoning / judgment / architecture?
     (DB design, migration plan, algo debug, security eval, ADR decision)
     └─→  Route: DEEP_REASONING
-          Tool : deep_reasoning
+          Tool : invoke_subagent (Role: deep_reasoning)
           Model: Claude Sonnet  (fallback → Gemini Pro; never Flash)
           Rule : Supervisor must pre-fetch any files via technical_executor
                  then pass content as payload — deep_reasoning never touches files
